@@ -1,7 +1,10 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 
-from .models import Question
+from rest_framework import generics
+
+from .models import Question, Choice
+from .serializers import QuestionSerializer, ChoiceSerializer
 
 
 def index(request):
@@ -19,3 +22,27 @@ def results(request, question_id):
 
 def vote(request, question_id):
     return HttpResponse("You're voting on question %s." % question_id)
+
+
+class QuestionList(generics.ListCreateAPIView):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+    
+class QuestionDetail(generics.RetrieveUpdateDestroyAPIView):
+    
+    serializer_class = QuestionSerializer
+
+    def get_object(self):
+        return get_object_or_404(Question, pk=self.kwargs.get('question_id'))
+    
+
+class ChoiceList(generics.ListCreateAPIView):
+    queryset = Choice.objects.all()
+    serializer_class = ChoiceSerializer
+    
+class ChoiceDetail(generics.RetrieveUpdateDestroyAPIView):
+    
+    serializer_class = ChoiceSerializer
+    
+    def get_object(self):
+        return get_object_or_404(Choice, pk=self.kwargs.get('id'))
