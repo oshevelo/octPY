@@ -1,27 +1,17 @@
+
 from django.http import HttpResponse
-from django.http import Http404
 from polls.models import Question, Choice
 
 from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
 from polls.serializers import QuestionSerializer, ChoiceSerializer
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
 
 
 def index(request):
-    question_list = Question.objects.all()
-    return HttpResponse('http://127.0.0.1:8000' + reverse('list'))
-
-
-def index_other(request):
-    return HttpResponse("Hello, OTHER world. You're at the polls index.")
-
-
-class ChoiceList(generics.ListCreateAPIView):
-    serializer_class = ChoiceSerializer
-
-    def get_queryset(self):        
-        return Choice.objects.filter(question_id=self.kwargs.get('question_id')) 
+    return HttpResponse("Hello, world. You're at the polls index.")
 
 
 class QuestionList(generics.ListCreateAPIView):
@@ -29,11 +19,30 @@ class QuestionList(generics.ListCreateAPIView):
     serializer_class = QuestionSerializer
 
 
-
 class QuestionDetail(generics.RetrieveUpdateDestroyAPIView):
-    
     serializer_class = QuestionSerializer
 
     def get_object(self):
         return get_object_or_404(Question, pk=self.kwargs.get('question_id'))
 
+
+class ChoiceList(APIView):
+    def get(self, request):
+        choice = Choice.objects.all()
+        serializer = ChoiceSerializer(choice, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = ChoiceSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChoiceDetail(generics.RetrieveUpdateDestroyAPIView):
+
+    serializer_class = ChoiceSerializer
+
+    def get_object(self):
+        return get_object_or_404(Choice, pk=self.kwargs.get('choice_id'))
