@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['192.168.1.103', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    'jet',
     'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
