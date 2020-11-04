@@ -27,22 +27,24 @@ def vote(request, question_id):
 class QuestionList(generics.ListCreateAPIView):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
-    
+
 class QuestionDetail(generics.RetrieveUpdateDestroyAPIView):
-    
+
     serializer_class = QuestionSerializer
 
     def get_object(self):
         return get_object_or_404(Question, pk=self.kwargs.get('question_id'))
-    
+
 
 class ChoiceList(generics.ListCreateAPIView):
-    queryset = Choice.objects.all()
     serializer_class = ChoiceSerializer
-    
+
+    def get_queryset(self):
+        return Choice.objects.filter(question_id=self.kwargs.get('question_id'))
+
 class ChoiceDetail(generics.RetrieveUpdateDestroyAPIView):
-    
+
     serializer_class = ChoiceSerializer
-    
+
     def get_object(self):
-        return get_object_or_404(Choice, pk=self.kwargs.get('id'))
+        return get_object_or_404(Choice, pk=self.kwargs.get('choice_id'))
