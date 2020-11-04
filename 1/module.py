@@ -9,6 +9,7 @@ def calc_total_price(discount, price, z = 100):
         return price
 
 
+
     return price * discount
 print(__name__)
 if __name__=='__main__':
