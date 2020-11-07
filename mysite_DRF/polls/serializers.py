@@ -11,12 +11,12 @@ class ChoiceNestedSerializer(serializers.ModelSerializer):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    #id = serializers.IntegerField(required=False)
-    choices = ChoiceNestedSerializer(many=True, read_only=True)
+
+    choices = ChoiceNestedSerializer(read_only=True)
 
     class Meta:
         model = Question
-        fields = ['id', 'question_text', 'pub_date', 'question_votes', 'choices']
+        fields = ['id', 'question_text', 'pub_date', 'choices']
 
 
 class QuestionNestedSerializer(serializers.ModelSerializer):
