@@ -7,24 +7,27 @@ from django.utils import timezone
 # Create your models here.
 
 class Order(models.Model):
-    delmet = (
-    [1, 'Самовывоз']
-    , [2, 'Доставка по Киеву']
-    , [3, 'Доставка по Украине']
+    delivery_methods = (
+    [pickup, 'Самовывоз'],
+    [kiev_delivery, 'Доставка по Киеву'],
+    [ukraine_deivery, 'Доставка по Украине']
     )
-    paymet = (
-    [1, 'Предоплата картой']
-    , [2, 'Оплата при получении']
+    payment_methods = (
+    [prepayment, 'Предоплата картой'],
+    [postpayment, 'Оплата при получении']
     )
-    orderdate=models.DateTimeField('date published')
-    ordernum=models.IntegerField(default=0)
-    orderuser=models.ForeignKey(User, on_delete=models.CASCADE)
-    orderdelmet=models.IntegerField(choices=delmet, default=1)
-    orderdeldate=models.DateTimeField(default=)
-    orderpaymet=models.IntegerField(choices=paymet, default=1)
+    date=models.DateTimeField('date published')
+    number=models.IntegerField(default=0)
+    user=models.ForeignKey(User, on_delete=models.SET_NULL)
+    delivery_method=models.IntegerField(choices=delivery_methods, default=pickup)
+    payment_method=models.IntegerField(choices=payment_methods, default=prepayment)
+    cart=models.ForeignKey(Cart, on_delete=models.SET_NULL)
 
 
 
 
 class OrderItem(models.Model):
-    cart=models.ForeignKey(Cart, on_delete=models.CASCADE)
+    product=models.ForeignKey(Product, on_delete=models.SET_NULL)
+    order=models.ForeignKey(Order, on_delete=models.SET_NULL)
+    count=models.IntegerField(default=0)
+    final_price=models.FloatField(default=0)
