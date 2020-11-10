@@ -1,61 +1,52 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from gastronom.settings import INSTALLED_APPS
+from user_profile.models import User
 
 
 class Notification(models.Model):
 
-    SENDER = (
-        'ACTIVITIES',
-        'ANALYTICS',
-        'CART',
-        'CATALOG',
-        'COMMENTS',
-        'INFO',
-        'LOYALTY',
-        'NOTIFICATIONS',
-        'ORDER',
-        'PAYMENT',
-        'PRODUCT',
-        'SHIPMENT',
-        'USER_PROFILE',
+    SOURCE = [(x, x) for x in INSTALLED_APPS]
+    source = models.CharField(max_length=200, choices=SOURCE)
+
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    send_methods = (
+        ('email', 'E-mail'),
+        ('messenger', 'Messenger'),
+        ('site', 'Site'),
     )
-    sender = models.CharField(choices=SENDER)
-    recipient = models.CharField
-    method = models.CharField(default='e-mail')
+    send_method = models.CharField(choices=send_methods, default='email', max_length=20)
     timestamp = models.DateTimeField(auto_now_add=True)
-    verb = models.CharField()
+    verb = models.CharField(max_length=200)
 
     class Meta:
         ordering = ("-timestamp",)
 
     def __str__(self):
-        return f"{self.sender} {self.recipient} {self.verb} {self.timestamp}"
+        return f"{self.source} {self.recipient} {self.verb} {self.timestamp} {self.send_method}"
 
+    @classmethod
+    def create_notifications(cls, source, recipient, verb, send_method):
+        """
+        Create and save notification objects to database
+        :param source: str, name of app making notification
+        :param recipient: class User object or list of class User objects
+        :param verb: str, body of notification message
+        :param send_method: str, name of send method
+        """
+        if isinstance(recipient, list):
+            for user in recipient:
+                Notification.objects.create(
+                    source=source,
+                    recipient=user,
+                    verb=verb,
+                    send_method=send_method,
+                    ).save()
 
-def create_notifications(sender, recipient, verb, **kwargs):
-
-    if recipient == "global":
-        users = get_user_model().objects.all()
-        for user in users:
+        else:
             Notification.objects.create(
-                sender=sender,
-                recipient=user,
+                source=source,
+                recipient=recipient,
                 verb=verb,
-            )
-
-    elif isinstance(recipient, list):
-        for user in recipient:
-            Notification.objects.create(
-                sender=sender,
-                recipient=get_user_model().objects.get(username=user),
-                verb=verb,
-            )
-
-    elif isinstance(recipient, get_user_model()):
-        Notification.objects.create(
-            sender=sender,
-            recipient=recipient,
-            verb=verb,
-        )
-    else:
-        pass
+                send_method=send_method,
+            ).save()
