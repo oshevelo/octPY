@@ -19,4 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('jet/', include('jet.urls', 'jet')),
     path('admin/', admin.site.urls),
+    path('notifications/', include('notifications.urls'))
 ]
