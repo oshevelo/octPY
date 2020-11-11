@@ -13,7 +13,6 @@ class ReviewsAdmin(admin.ModelAdmin):
         (None,               {'fields': ['user', 'text']}),
     ]
     inlines = [CommentGalleryItemInline]
-    # list_display = ('question_text', 'pub_date', 'question_description', 'was_published_recently')
     list_filter = ['created']
     search_fields = ['user', 'text']
 

@@ -25,5 +25,5 @@ class CommentGalleryItem(models.Model):
     review = models.ForeignKey(Reviews, on_delete=models.CASCADE)
 
 
-class UsefulPlusMinas(models.Model):
-    pass
+class UsefulKarma(models.Model):
+    reviews = models.ManyToManyField(Reviews)
