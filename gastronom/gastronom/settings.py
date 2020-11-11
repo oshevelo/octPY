@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'catalog',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -129,4 +130,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-from .local import *
+from .local_settings import *
