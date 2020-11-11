@@ -8,7 +8,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('user_profile', '0001_initial'),
     ]
 
     operations = [
@@ -19,8 +18,7 @@ class Migration(migrations.Migration):
                 ('source', models.CharField(max_length=20)),
                 ('send_method', models.CharField(choices=[('email', 'E-mail'), ('messenger', 'Messenger'), ('site', 'Site')], default='e-mail', max_length=20)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('verb', models.CharField(max_length=200)),
-                ('recipient', models.ForeignKey(on_delete=models.SET('user_id'), to='user_profile.User')),
+                ('verb', models.CharField(max_length=200))
             ],
             options={
                 'ordering': ('-timestamp',),

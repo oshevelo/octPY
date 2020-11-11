@@ -6,15 +6,11 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notifications', '0001_initial'),
+	('notifications', '0001_initial'),
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='notification',
-            name='recipient',
-            field=models.ForeignKey(on_delete=models.SET('user_profile_id'), to='user_profile.User'),
-        ),
+        
         migrations.AlterField(
             model_name='notification',
             name='send_method',
