@@ -1,18 +1,17 @@
-# from django.db import models
-#
-#
-# class Category(models.Model):
-#     name = models.CharField(max_length=50)
-#     description = models.TextField(blank=True)
-#
-#     def __str__(self):
-#         return self.name
+from django.db import models
 
-#
-# class Subcategory(models.Model):
-#     name = models.CharField(max_length=200)
-#     description = models.TextField(blank=True)
-#     category = models.ForeignKey(Category.name, on_delete=models.CASCADE)
-#
-#     def __str__(self):
-#         return self.name
+
+class Category(models.Model):
+    category_name = models.CharField(max_length=50)
+    category_description = models.TextField(blank=True)
+    parent_category = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return self.category_name
+
+'''
+class Product(models.Model):
+    product_name = models.CharField(max_length=50)
+    category = models.ManyToManyField(Category)
+'''
+
