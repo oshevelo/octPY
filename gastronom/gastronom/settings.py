@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jet',
+    'comments.apps.CommentsConfig',
     'notifications',
     'catalog',
     'django.contrib.admin',
@@ -126,5 +128,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 from .local_settings import *
+
