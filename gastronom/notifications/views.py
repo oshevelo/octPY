@@ -27,7 +27,7 @@ class NotificationsByRecipient(generics.ListCreateAPIView):
         return obj
 
 
-class QuestionChoiceNested(generics.RetrieveUpdateDestroyAPIView):
+class NotificationsByUserNested(generics.RetrieveUpdateDestroyAPIView):
     """
     Outputs notifications by recipient id nested. Path = 'notifications/recipient/<int:recipient_id>/nested'
     """
