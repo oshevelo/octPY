@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'jet',
+    'rest_framework',
     'comments.apps.CommentsConfig',
     'notifications',
     'catalog',

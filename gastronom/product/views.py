@@ -1,3 +1,7 @@
 from django.shortcuts import render
 
-# Create your views here.
+from rest_framework import generics
+
+from product.models import Product, Media, Characteristic
+from product.serializers import ProductSerializer, MediaSerializer, CharacteristicSerializer
+
