@@ -1,9 +1,12 @@
 from django.db import models
 
+from catalog.models import Catalog
+# TODO add count, price, sku(charfield )
 class Product(models.Model):
     product_name = models.CharField(max_length=50, blank=False)
-    product_descriptions = models.CharField(max_length=500)
+    product_descriptions = models.CharField(max_length=1000)
     product_raiting = models.DecimalField(max_digits=3, decimal_places=1)
+    categories = models.ManyToManyField(Catalog)
     
     def __str__(self):
         return self.name

@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from product.models import Product, Media, Characteristic
 
-# TODO creates MediaNested, CharacteristicNested, FeedbackNested
 
 class ProductNestedSerializer(serializers.ModelSerializer):
     
@@ -30,7 +29,7 @@ class ProductSerializer(serializers.ModelSerializer):
     characteristics = CharacteristicNestedSerializer(many=True, read_only=True)
     class Meta:
         model = Product
-        fields = ['id', 'product_name', 'product_descriptions', 'product_raiting', 'media', 'characteristics']
+        fields = ['id', 'product_name', 'product_descriptions', 'product_raiting', 'media']
         
 
 class MediaSerializer(serializers.ModelSerializer):
