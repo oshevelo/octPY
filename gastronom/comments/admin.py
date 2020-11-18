@@ -5,12 +5,12 @@ from .models import Review, GalleryImageReview
 
 class GalleryImageReviewInline(admin.TabularInline):
     model = GalleryImageReview
-    extra = 1
+    extra = 2
 
 
 class ReviewAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None,               {'fields': ['user', 'text']}),
+        (None,               {'fields': ['user', 'text', 'reply_to']}),
     ]
     inlines = [GalleryImageReviewInline]
     list_filter = ['created']
