@@ -3,8 +3,8 @@ from django.db import models
 
 class Catalog(models.Model):
     name = models.CharField(max_length=50)
-    description = models.TextField(blank=True)
-    index = models.IntegerField()
+    description = models.TextField(null=True, blank=True)
+    index = models.IntegerField(default=1)
     parent_category = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
