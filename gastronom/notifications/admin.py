@@ -1,7 +1,12 @@
 from django.contrib import admin
 
-from .models import Notification
+from .models import Notification, TelegramUser
 
+
+@admin.register(TelegramUser)
+class TelegramUserAdmin(admin.ModelAdmin):
+    model = TelegramUser
+    list_display = ('id', 'telegram_id', 'telegram_user_name')
 
 
 class NotificationInline(admin.TabularInline):
