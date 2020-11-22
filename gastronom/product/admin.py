@@ -14,14 +14,14 @@ class MediaInline(admin.StackedInline):
     
 class ProductAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None,                  {'fields' : ['product_name']}),
-        ('Product information', {'fields' : ['product_descriptions', 'product_raiting']}),
+        (None,                  {'fields' : ['name', 'sku', 'price']}),
+        ('Product information', {'fields' : ['descriptions', 'raiting']}),
         ]
     
     inlines = [CharacteristicInline, MediaInline]
-    list_display = ('product_name', 'product_descriptions', 'product_raiting')
-    list_filter = ['product_raiting']
-    search_fields = ['product_name']
+    list_display = ('name', 'descriptions', 'sku', 'price', 'raiting')
+    list_filter = ['raiting', 'price', 'name']
+    search_fields = ['name', 'price', 'sku', 'raiting']
     
     
 admin.site.register(Product, ProductAdmin)
