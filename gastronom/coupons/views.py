@@ -1,22 +1,33 @@
-from django.shortcuts import render, redirect
-from django.views.decorators.http import require_POST
-from django.utils import timezone
-from .models import Coupon
-from .forms import CouponApplyForm
+from django.shortcuts import render
+from rest_framework import permissions, viewsets
+from rest_framework.response import Response
+from rest_framework.decorators import detail_route
+from coupons.models import Coupon
+from coupons.permissions import IsAdminUser
+from coupons.serializers import CouponSerializer
+from datetime import date
 
 
-@require_POST
-def coupon_apply(request):
-    now = timezone.now()
-    form = CouponApplyForm(request.POST)
-    if form.is_valid():
-        code = form.cleaned_data['code']
-        try:
-            coupon = Coupon.objects.get(code__iexact=code,
-                                        valid_from__lte=now,
-                                        valid_to__gte=now,
-                                        active=True)
-            request.session['coupon_id'] = coupon.id
-        except Coupon.DoesNotExists:
-            request.session['coupon_id'] = None
-    return redirect('cart:cart_detail')
+class CouponViewSet(viewsets.ModelViewSet):
+	lookup_field = 'code'
+	queryset = Coupon.objects.order_by('-created_at')
+	serializer_class = CouponSerializer
+
+	def get_permissions(self):
+		if self.request.method in permissions.SAFE_METHODS:
+			return (permissions.AllowAny(),)
+		return (permissions.IsAuthenticated(), IsAdminUser(),)
+		
+	def perform_create(self, serializer):
+		instance = serializer.save()
+		return super(CouponViewSet, self).perform_create(serializer)
+
+	
+	
+	@detail_route(methods=['GET']) 
+	def verify(self, request, code=None):
+		coupon = Coupon.objects.filter(code=code)
+		if coupon.exists() and coupon[0].valid_till > date.today():
+			return Response({'valid': True}) 
+		else:
+			return Response({'valid': False}) 

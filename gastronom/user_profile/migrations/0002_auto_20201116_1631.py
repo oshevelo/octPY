@@ -13,6 +13,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='userprofile',
             name='gender',
+<<<<<<< HEAD
             field=models.IntegerField(choices=[('Male', 'Male'), ('Female', 'Female'), ('not specified', 'not specified')]),
+=======
+            field=models.IntegerField(choices=[('Male', 'Male'), ('Female', 'Female'), ('not specified', 'not specified')], default='not specified'),
+>>>>>>> b1a3fd9f09ad12453b0866621fc7c866f122410d
         ),
     ]
