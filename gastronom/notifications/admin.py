@@ -1,12 +1,14 @@
 from django.contrib import admin
+from .models import Notification, TelegramUser, TelegramIncomeMessage
 
-from .models import Notification, TelegramUser
+
+class TelegramIncomeMessageInline(admin.TabularInline):
+    model = TelegramIncomeMessage
 
 
-@admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
-    model = TelegramUser
-    list_display = ('id', 'telegram_id', 'telegram_user_name')
+    inlines = [TelegramIncomeMessageInline]
+    list_display = ('id', 'telegram_id', 'telegram_user_name', 'telegram_user_phone')
 
 
 class NotificationInline(admin.TabularInline):
@@ -15,3 +17,6 @@ class NotificationInline(admin.TabularInline):
 
 
 admin.site.register(Notification)
+admin.site.register(TelegramUser, TelegramUserAdmin)
+admin.site.register(TelegramIncomeMessage)
+

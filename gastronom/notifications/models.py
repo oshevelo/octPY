@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from gastronom.settings import INSTALLED_APPS
 from notifications.sender import send_method_validator
+from user_profile.models import UserProfile
 
 
 class Notification(models.Model):
@@ -64,8 +65,21 @@ class Notification(models.Model):
 
 class TelegramUser(models.Model):
     telegram_id = models.PositiveIntegerField(verbose_name='Telegram User ID', unique=True)
-    # telegram_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    telegram_user_name = models.TextField(verbose_name='Telegram User Name', default='')
+    # telegram_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, blank=True)
+    telegram_user_name = models.TextField(verbose_name='Telegram User Name', null=True, blank=True)
+    telegram_user_phone = models.TextField(verbose_name='Telegram user phone number', null=True, blank=True)
 
     def __str__(self):
-        return f'#{self.telegram_id} {self.telegram_user.username}'
+        return f'{self.telegram_id} {self.telegram_user_name} {self.telegram_user_phone}'
+
+
+class TelegramIncomeMessage(models.Model):
+    telegramuser = models.ForeignKey(TelegramUser, on_delete=models.PROTECT)
+    text = models.TextField(verbose_name='Text')
+    created_at = models.DateTimeField(verbose_name='Send time', auto_now_add=True)
+
+    def __str__(self):
+        return f'Message {self.pk} from {self.telegramuser}: {self.text} {self.created_at}'
+
+    class Meta:
+        verbose_name = 'Telegram income message'
