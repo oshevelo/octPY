@@ -1,6 +1,6 @@
-from telegram import Bot, KeyboardButton, ReplyKeyboardMarkup
+from telegram import KeyboardButton, ReplyKeyboardMarkup
 from telegram import Update
-from telegram.ext import CallbackContext, Filters, MessageHandler, Updater
+from telegram.ext import CallbackContext
 
 from notifications.models import TelegramUser, TelegramIncomeMessage
 

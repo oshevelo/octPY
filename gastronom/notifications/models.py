@@ -1,13 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-import logging
+# import logging
 
 from gastronom.settings import INSTALLED_APPS
 from notifications.sender import send_methods
 
 
-logger = logging.getLogger('__name__')
+# logger = logging.getLogger('__name__')
 
 
 class Notification(models.Model):
@@ -63,7 +63,8 @@ class Notification(models.Model):
                 )
                 send_func(recipient_email=str(recipient.email), message=message)
         else:
-            logger.error('Invalid method passed to the create_notifications')
+            pass
+            # logger.error('Invalid method passed to the create_notifications')
 
 
 # Example: Notification.create_notifications('notifications', recipient=[User.objects.get(id=1),
