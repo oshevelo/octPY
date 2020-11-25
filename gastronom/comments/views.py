@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
-from .models import Review, GalleryImageReview, ReviewRating
+from .models import Review, ReviewImage, ReviewRating
 from notifications.models import Notification
 from rest_framework import generics
-from comments.serializers import ReviewSerializer, GalleryImageSerializer, ReviewRatingSerializer
+from comments.serializers import ReviewSerializer, ReviewImageSerializer, ReviewRatingSerializer
 
 # Create your views here.
 
@@ -22,11 +22,11 @@ class ReviewRetrieve(generics.RetrieveUpdateAPIView):
 
 
 
-class GalleryImageListCreate(generics.ListCreateAPIView):
-    queryset = GalleryImageReview.objects.all()
-    serializer_class = GalleryImageSerializer
+class ReviewImageListCreate(generics.ListCreateAPIView):
+    queryset = ReviewImage.objects.all()
+    serializer_class = ReviewImageSerializer
 
 
-class ReviewLikeListCreate(generics.ListCreateAPIView):
+class ReviewRatingListCreate(generics.ListCreateAPIView):
     queryset = ReviewRating.objects.all()
     serializer_class = ReviewRatingSerializer

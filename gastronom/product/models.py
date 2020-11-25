@@ -9,7 +9,7 @@ class Product(models.Model):
     categories = models.ManyToManyField(Catalog)
     
     def __str__(self):
-        return self.name
+        return self.product_name
 
 
 class Media(models.Model):

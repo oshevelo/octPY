@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User	
 from rest_framework import serializers
-from .models import Review, GalleryImageReview, ReviewRating
+from .models import Review, ReviewImage, ReviewRating
 from django.contrib.auth.models import User
 
 
@@ -26,11 +26,12 @@ class RecursiveSerializer(serializers.Serializer):
         return serializers.data
 
 
-class GalleryImageSerializer(serializers.ModelSerializer):
+class ReviewImageSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = GalleryImageReview
-        fields = ['review', 'review_photo']
+        model = ReviewImage
+        fields = ['review_photo', 'review']
+
 
 
 class ReviewRatingSerializer(serializers.ModelSerializer):
@@ -41,10 +42,12 @@ class ReviewRatingSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-    child = RecursiveSerializer(many = True)
+    user = UserSerializer(read_only=True)
+    child = RecursiveSerializer(many = True, read_only=True)
+
 
     class  Meta:
         list_serializer_class = FilterReviewListSerializer
         model = Review
-        fields = ['user', 'text', 'created', 'child']
+        fields = ['user', 'product', 'text', 'created', 'child']
+  
