@@ -14,7 +14,7 @@ class MediaNestedSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Media
-        fields = ['id', 'image']
+        fields = ['id', 'product_image']
 
 
 class CharacteristicNestedSerializer(serializers.ModelSerializer):
@@ -25,12 +25,11 @@ class CharacteristicNestedSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    # media = MediaNestedSerializer(many=True, read_only=True)
+    images = MediaNestedSerializer(many=True, read_only=True)
     characteristics = CharacteristicNestedSerializer(many=True, read_only=True)
     class Meta:
         model = Product
-        # Before characteristics will move 'media'
-        fields = ['id', 'name', 'sku', 'descriptions', 'raiting', 'count', 'price', 'characteristics', 'available']
+        fields = ['id', 'name', 'sku', 'descriptions', 'raiting', 'count', 'price', 'available', 'characteristics', 'images']
         
 
 class MediaSerializer(serializers.ModelSerializer):
