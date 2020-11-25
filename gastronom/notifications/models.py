@@ -1,8 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
+
+import logging
+
 from gastronom.settings import INSTALLED_APPS
-from notifications.sender import send_method_validator
-from user_profile.models import UserProfile
+from notifications.sender import send_methods
+
+
+logger = logging.getLogger('__name__')
 
 
 class Notification(models.Model):
@@ -37,8 +42,8 @@ class Notification(models.Model):
         :param message: str, body of notification message
         :param send_method: str, name of send method
         """
-        if send_method_validator(send_method):
-            send_func = send_method_validator(send_method)
+        if send_method in send_methods:
+            send_func = send_methods[send_method]
             if isinstance(recipient, list):
                 for user in recipient:
                     Notification.objects.create(
@@ -57,6 +62,8 @@ class Notification(models.Model):
                     send_method=send_method,
                 )
                 send_func(recipient_email=str(recipient.email), message=message)
+        else:
+            logger.error('Invalid method passed to the create_notifications')
 
 
 # Example: Notification.create_notifications('notifications', recipient=[User.objects.get(id=1),
