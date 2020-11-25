@@ -19,4 +19,3 @@ class NotificationInline(admin.TabularInline):
 admin.site.register(Notification)
 admin.site.register(TelegramUser, TelegramUserAdmin)
 admin.site.register(TelegramIncomeMessage)
-

@@ -23,3 +23,4 @@ def send_method_validator(send_method):
 def send_email(recipient_email, message):
     recipient_email = [recipient_email]
     send_mail(subject='GASTRONOM info', message=message, from_email=EMAIL_HOST_USER, recipient_list=recipient_email)
+

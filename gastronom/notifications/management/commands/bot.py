@@ -1,12 +1,12 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
+
 from telegram import Bot, KeyboardButton, ReplyKeyboardMarkup
 from telegram import Update
 from telegram.ext import CallbackContext, Filters, MessageHandler, Updater
 from telegram.utils.request import Request
 
 from notifications.models import TelegramUser, TelegramIncomeMessage
-from user_profile.models import UserProfile
 
 
 def log_errors(f):
