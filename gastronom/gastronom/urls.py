@@ -24,9 +24,6 @@ urlpatterns = [
     path('catalog/', include('catalog.urls')),
     path('product/', include('product.urls')),
     path('comments/', include('comments.urls')),
-<<<<<<< HEAD
     path('loggers/', include('loggers.loggers.urls')),
-=======
     path('cart/', include('cart.urls')),
->>>>>>> 3387cc87f1e63c2a8356c8183c702fcae2ae1106
 ]
