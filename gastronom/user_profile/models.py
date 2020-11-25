@@ -1,13 +1,9 @@
-from django.db import models
+from django.db import models	
 
-# Create your models here.
+# Create your models here.	
 
-class UserProfile(models.Model):
-    """Customer's profile"""
-    
-    Male = 'Male'
-    Female = 'Female'
-    Not_specified = 'not specified'
+class UserProfile(models.Model):	
+    """Customer's profile"""	
 
     GENDER_CHOICES = [
         (Male, 'Male'),
