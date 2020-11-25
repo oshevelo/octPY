@@ -5,7 +5,8 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from catalog.models import Catalog
 
 from io import BytesIO
-import os, datetime
+import os
+from datetime import datetime
 from PIL import Image
 
 
@@ -39,15 +40,18 @@ class Product(models.Model):
 
 
 class Media(models.Model):
-
+    #filename = str(datetime.now().strftime("%Y-%m-%d"))
+    #upload_path = "products/" + filename
+    
     def generate_upload_path(self, filename):
-        UPLOAD_PATH = "/media/"
+        dir_name = str(datetime.now().strftime("%Y-%m-%d"))
+        UPLOAD_PATH = f"products/{dir_name}"
         filename, ext = os.path.splitext(filename.lower())
-        filename = "%s.%s%s" % (slugify(filename),datetime.datetime.now().strftime("%Y-%m-%d"), ext)
+        filename = "%s.%s%s" % (slugify(filename),datetime.now().strftime("%Y-%m-%d"), ext)
         return '%s/%s' % (UPLOAD_PATH, filename)
     
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='mediafiles')
-    product_image = models.ImageField(upload_to=generate_upload_path, null=True, default='product.jpg')
+    product_image = models.ImageField(upload_to=generate_upload_path, null=True)
 
     
     def create_thumbnail(self):
@@ -70,12 +74,12 @@ class Media(models.Model):
     
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        img = Image.open(self.image.path)
+        img = Image.open(self.product_image.path)
 
         if img.height > 100 or img.weight > 100:
             output_size = (100, 100)
             img.thumbnail(output_size)
-            img.save(self.image.path)
+            img.save(self.product_image.path)
 
     class Meta:
         ordering = ['product_id']

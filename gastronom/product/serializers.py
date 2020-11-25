@@ -38,7 +38,7 @@ class MediaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Media
-        fields = ['id', 'image', 'product']
+        fields = ['id', 'product_image', 'product']
         
 
 class CharacteristicSerializer(serializers.ModelSerializer):

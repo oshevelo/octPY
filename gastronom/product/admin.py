@@ -19,9 +19,10 @@ class ProductAdmin(admin.ModelAdmin):
         ]
     
     inlines = [CharacteristicInline, MediaInline]
-    list_display = ('name', 'descriptions', 'sku', 'price', 'raiting')
+    list_display = ('name', 'descriptions', 'sku', 'price', 'raiting', 'count', 'available')
     list_filter = ['raiting', 'price', 'name']
     search_fields = ['name', 'price', 'sku', 'raiting']
+    list_editable = ['price', 'raiting', 'count']
     
     
 admin.site.register(Product, ProductAdmin)
