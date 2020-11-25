@@ -1,9 +1,12 @@
 from django.db import models
 from django.utils.text import slugify
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from catalog.models import Catalog
 
+from io import BytesIO
 import os, datetime
+from PIL import Image
 
 
 class Product(models.Model):
@@ -14,19 +17,21 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=7, decimal_places=2, default=0.0)
     sku = models.CharField(max_length=10, default='AA22qq55')
     categories = models.ManyToManyField(Catalog)
+    available = models.BooleanField(default=True, verbose_name="Available")
     
     def __str__(self):
-        return self.pk, self.name, self.sku
+        return f"{self.pk}, {self.name}, {self.sku}"
 
-    def __eq__(self, other):
-        return (self.name == other.name) or (self.raiting == other.raiting) or (self.price == other.price)
-
-    def __lt__(self, other):
-        return (self.name < other.name) or (self.raiting < other.raiting) or (self.price < other.price)
-
-    def __le__(self, other):
-        return (self.name <= other.name) or (self.raiting <= other.raiting) or (self.price <= other.price)
-
+    @property
+    def amount_left(self):
+        if self.count <= 0:
+            self.available = False
+            self.save()
+            return 0
+        else:
+            self.available = True
+            self.save()
+            return self.count
 
 
     class Meta:
@@ -35,16 +40,45 @@ class Product(models.Model):
 
 class Media(models.Model):
 
-    UPLOAD_PATH = "../templates/media/"
-
     def generate_upload_path(self, filename):
+        UPLOAD_PATH = "/media/"
         filename, ext = os.path.splitext(filename.lower())
         filename = "%s.%s%s" % (slugify(filename),datetime.datetime.now().strftime("%Y-%m-%d"), ext)
         return '%s/%s' % (UPLOAD_PATH, filename)
     
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='mediafiles')
-    product_image = models.ImageField(upload_to=generate_upload_path)
+    product_image = models.ImageField(upload_to=generate_upload_path, null=True, default='product.jpg')
 
+    
+    def create_thumbnail(self):
+        image = Image.open(self.product_image.file.file)
+        image.thumbnail(size=(100, 100))
+        image_file = BytesIO()
+        image.save(image_file, image.format)
+        self.thumbnail_image.save(
+            self.image.name,
+            InMemoryUploadedFile(
+                image_file,
+                None, '',
+                self.image.file.content_type,
+                image.size,
+                self.image.file.charset,
+            ),
+            save=False
+        )
+
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        img = Image.open(self.image.path)
+
+        if img.height > 100 or img.weight > 100:
+            output_size = (100, 100)
+            img.thumbnail(output_size)
+            img.save(self.image.path)
+
+    class Meta:
+        ordering = ['product_id']
 
     
 
@@ -54,5 +88,8 @@ class Characteristic(models.Model):
     descriptions = models.CharField(max_length=500)
     
     def __str__(self):
-        return self.pk, self.product, self.characteristic
+        return f"{self.pk}, {self.product}, {self.characteristic}"
+
+    class Meta:
+        ordering = ['product_id']
 

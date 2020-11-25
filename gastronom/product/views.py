@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 
-from rest_framework import generics
+from rest_framework import generics, filters
 
 from product.models import Product, Media, Characteristic
 from product.serializers import ProductSerializer, MediaSerializer, CharacteristicSerializer
@@ -9,6 +9,10 @@ from product.serializers import ProductSerializer, MediaSerializer, Characterist
 class ProductList(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
+    ordering_fields = ['price', 'raiting']
+    search_fields = ['name', 'price', 'raiting']
+
 
     
 class ProductDetail(generics.RetrieveUpdateDestroyAPIView):

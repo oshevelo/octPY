@@ -14,7 +14,7 @@ class MediaInline(admin.StackedInline):
     
 class ProductAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None,                  {'fields' : ['name', 'sku', 'price']}),
+        (None,                  {'fields' : ['name', 'sku', 'price', 'count', 'available']}),
         ('Product information', {'fields' : ['descriptions', 'raiting']}),
         ]
     
