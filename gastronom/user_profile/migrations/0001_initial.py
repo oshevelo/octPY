@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('phone_number', models.CharField(max_length=12)),
                 ('email', models.EmailField(max_length=30)),
                 ('birth_date', models.DateField(null=True)),
-                ('gender', models.IntegerField(choices=[('Male', 'male'), ('Female', 'female'), ('not specified', 'not specified')], default='not specified')),
+                ('gender', models.CharField(choices=[('Male', 'male'), ('Female', 'female'), ('not specified', 'not specified')], default='not specified')),
             ],
         ),
     ]
