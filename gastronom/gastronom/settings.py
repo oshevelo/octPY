@@ -39,13 +39,14 @@ INSTALLED_APPS = [
     'notifications',
     'catalog',
     'product.apps.ProductConfig',
+    'cart',
+    'imagekit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cart',
 ]
 
 MIDDLEWARE = [
@@ -137,4 +138,12 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+PRODUCT_IMAGE_SIZE = {
+    'thumbnail': (150, 150),
+    'medium': (300,300),
+    'medium_large': (768, 768),
+    'large': (1024, 1024)
+}
+
 from .local_settings import *

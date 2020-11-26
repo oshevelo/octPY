@@ -3,27 +3,25 @@ from django.utils.text import slugify
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from catalog.models import Catalog
+from gastronom.settings import PRODUCT_IMAGE_SIZE
 
-from io import BytesIO
-import os
-from datetime import datetime
-from PIL import Image
+from imagekit.models import ImageSpecField
+from pilkit.processors import ResizeToFill
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=50, blank=False)
-    descriptions = models.CharField(max_length=1000)
+    name = models.CharField(max_length=50, blank=True)
+    descriptions = models.TextField(max_length=1000)
     raiting = models.FloatField(default=0.0)
-    count = models.IntegerField(default=0)
-    price = models.DecimalField(max_digits=7, decimal_places=2, default=0.0)
-    sku = models.CharField(max_length=10, default='AA22qq55')
+    count = models.IntegerField(blank=True)
+    price = models.DecimalField(max_digits=7, decimal_places=2, blank=True)
+    sku = models.CharField(max_length=10, blank=True, unique=True)
     categories = models.ManyToManyField(Catalog)
     available = models.BooleanField(default=True, verbose_name="Available")
     
     def __str__(self):
         return f"{self.pk}, {self.name}, {self.sku}"
 
-    @property
     def amount_left(self):
         if self.count <= 0:
             self.available = False
@@ -32,64 +30,39 @@ class Product(models.Model):
         else:
             self.available = True
             self.save()
-            return self.count
+        return self.count
 
 
     class Meta:
         ordering = ['name', '-price']
 
 
-class Media(models.Model):
-    #filename = str(datetime.now().strftime("%Y-%m-%d"))
-    #upload_path = "products/" + filename
-    
-    def generate_upload_path(self, filename):
-        dir_name = str(datetime.now().strftime("%Y-%m-%d"))
-        UPLOAD_PATH = f"products/{dir_name}"
-        filename, ext = os.path.splitext(filename.lower())
-        filename = "%s.%s%s" % (slugify(filename),datetime.now().strftime("%Y-%m-%d"), ext)
-        return '%s/%s' % (UPLOAD_PATH, filename)
-    
+class ProductMedia(models.Model):
+
+    medium_size = PRODUCT_IMAGE_SIZE['medium']
+    thumbnail_size = PRODUCT_IMAGE_SIZE['thumbnail']
+
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='mediafiles')
-    product_image = models.ImageField(upload_to=generate_upload_path, null=True)
+    image = models.ImageField(upload_to='products/%Y/%m/%d/original/', null=True)
 
-    
-    def create_thumbnail(self):
-        image = Image.open(self.product_image.file.file)
-        image.thumbnail(size=(100, 100))
-        image_file = BytesIO()
-        image.save(image_file, image.format)
-        self.thumbnail_image.save(
-            self.image.name,
-            InMemoryUploadedFile(
-                image_file,
-                None, '',
-                self.image.file.content_type,
-                image.size,
-                self.image.file.charset,
-            ),
-            save=False
-        )
+    thumbnail_image = ImageSpecField(
+                source='image',
+                cachefile_storage='products/%Y/%m/%d/thumbnail/',
+                processors=[ResizeToFill(width=thumbnail_size[0], height=thumbnail_size[1])],
+                options={'quality': 60})
 
-    
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        img = Image.open(self.product_image.path)
+    medium_image = ImageSpecField(
+                source='image',
+                cachefile_storage='products/%Y/%m/%d/medium/',
+                processors=[ResizeToFill(width=medium_size[0], height=medium_size[1])],
+                options={'quality': 60})
 
-        if img.height > 100 or img.weight > 100:
-            output_size = (100, 100)
-            img.thumbnail(output_size)
-            img.save(self.product_image.path)
 
-    class Meta:
-        ordering = ['product_id']
-
-    
 
 class Characteristic(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='characteristics')
     characteristic = models.CharField(max_length=20)
-    descriptions = models.CharField(max_length=500)
+    descriptions = models.TextField(max_length=500)
     
     def __str__(self):
         return f"{self.pk}, {self.product}, {self.characteristic}"
