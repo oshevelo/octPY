@@ -20,7 +20,9 @@ urlpatterns = [
     path('jet/', include('jet.urls', 'jet')),
     path('admin/', admin.site.urls),
     path('notifications/', include('notifications.urls')),
+    path('user_profile/', include('user_profile.urls')),
     path('catalog/', include('catalog.urls')),
     path('product/', include('product.urls')),
     path('comments/', include('comments.urls')),
+    path('cart/', include('cart.urls')),
 ]
