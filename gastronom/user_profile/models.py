@@ -6,14 +6,14 @@ class UserProfile(models.Model):
     """Customer's profile"""	
 
     GENDER_CHOICES = [
-        (Male, 'Male'),
-        (Female, 'Female'),
-        (Not_specified, 'not specified'),
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+        ('Not_specified', 'Not_specified'),
     ]
 
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=12)
     email = models.EmailField(max_length=30)
-    birth_date = models.DateField(null=True)
-    gender = models.CharField(max_length=13,choices=GENDER_CHOICES, default=Not_specified,)
+    birth_date = models.DateField(auto_now=True)
+    gender = models.CharField(max_length=13,choices=GENDER_CHOICES, default='Not_specified')
