@@ -1,21 +1,18 @@
-import smtplib
 import ssl
 
-smtp_server = 'smtp.gmail.com'
-port = 587
-sender = 'django.gastronom@gmail.com'
-password = 'ok2392er'
-context = ssl.create_default_context()
+from django.core.mail import send_mail
+from gastronom.settings import EMAIL_HOST_USER
 
 
 def send_email(recipient_email, message):
-    try:
-        server = smtplib.SMTP(smtp_server, port)
-        server.starttls(context=context)
+    recipient_email = [recipient_email]
+    send_mail(subject='GASTRONOM info', message=message, from_email=EMAIL_HOST_USER, recipient_list=recipient_email)
 
-        server.login(sender, password)
-        server.sendmail(sender, recipient_email, message)
-    except Exception as exep:
-        print(exep)
-    finally:
-        server.quit()
+
+send_methods = {
+    'email': send_email,
+    # 'telegram': send_telegram,
+    # 'viber': send_viber,
+    # 'sms': send_sms,
+    # 'site': send_site
+}
