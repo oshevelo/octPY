@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 import logging
 
 from gastronom.settings import INSTALLED_APPS
+from notifications.sender import send_email
+from notifications.sender import send_telegram
 from notifications.sender import send_methods
 
 
@@ -15,11 +17,11 @@ class Notification(models.Model):
     source = models.CharField(max_length=200, choices=SOURCE)
     recipient = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='notifications')
     send_methods = (
-        ('email', 'E-mail'),
-        ('telegram', 'Telegram'),
-        ('viber', 'Viber'),
-        ('sms', 'Sms'),
-        ('site', 'Site'),
+        ('email', 'email'),
+        ('telegram', 'telegram'),
+        ('viber', 'viber'),
+        ('sms', 'sms'),
+        ('site', 'site'),
     )
     send_method = models.CharField(choices=send_methods, default='email', max_length=20)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -53,7 +55,7 @@ class Notification(models.Model):
                         message=message,
                         send_method=send_method,
                     )
-                    send_func(recipient_email=user.email, message=message)
+                    send_func(recipient=user, message=message)
             else:
                 Notification.objects.create(
                     source=source,
@@ -62,25 +64,44 @@ class Notification(models.Model):
                     message=message,
                     send_method=send_method,
                 )
-                send_func(recipient_email=str(recipient.email), message=message)
+                send_func(recipient, message)
         else:
             pass
             logger.error('Invalid method passed to the create_notifications')
 
 
-# Example: Notification.create_notifications('notifications', recipient=[User.objects.get(id=1),
-# User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email',
-# subject='My 100500 message')
+"""
+Example:
+
+from django.contrib.auth.models import User
+from notifications.models import Notification
+from user_profile.models import UserProfile
+
+email to list of Users:
+Notification.create_notifications('notifications', recipient=[User.objects.get(id=1), User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
+
+email to User:
+Notification.create_notifications('notifications', recipient=User.objects.get(id=1), message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
+
+telegram to list of Users:
+Notification.create_notifications('notifications', recipient=[User.objects.get(id=1), User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
+
+telegram to User:
+Notification.create_notifications('notifications', recipient=User.objects.get(id=1), message='Це моя перша телеграма from Django.gastronom', send_method='telegram')
+
+telegram to all Users:
+ Notification.create_notifications('notifications', recipient=[user for user in User.objects.all()], message='Це моя перша телеграма from Django.gastronom', send_method='telegram')
+
+"""
 
 
 class TelegramUser(models.Model):
-    telegram_id = models.PositiveIntegerField(verbose_name='Telegram User ID', unique=True)
-    # telegram_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, blank=True)
+    chat_id = models.PositiveIntegerField(verbose_name='Telegram User ID', unique=True)
     telegram_user_name = models.TextField(verbose_name='Telegram User Name', null=True, blank=True)
     telegram_user_phone = models.TextField(verbose_name='Telegram user phone number', null=True, blank=True)
 
     def __str__(self):
-        return f'{self.telegram_id} {self.telegram_user_name} {self.telegram_user_phone}'
+        return f'{self.chat_id} {self.telegram_user_name} {self.telegram_user_phone}'
 
 
 class TelegramIncomeMessage(models.Model):
@@ -93,3 +114,8 @@ class TelegramIncomeMessage(models.Model):
 
     class Meta:
         verbose_name = 'Telegram income message'
+
+
+class TelegramReplyMessage(models.Model):
+    reply_to = models.ForeignKey(TelegramIncomeMessage, on_delete=models.PROTECT)
+    reply_message = models.TextField(max_length=500)
