@@ -45,9 +45,10 @@ def contact_callback(update: Update, context: CallbackContext):
 def do_echo(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     text = update.message.text
+    message_id = update.message.message_id
     p, _ = TelegramUser.objects.update_or_create(chat_id=chat_id,
                                                  defaults={'telegram_user_name': update.message.from_user.username})
-    TelegramIncomeMessage(telegramuser=p, text=text).save()
+    TelegramIncomeMessage(telegramuser=p, text=text, message_id=message_id, chat_id=chat_id).save()
     telegram_user_phone = TelegramUser.objects.get(chat_id=chat_id).telegram_user_phone
     bot.send_message(chat_id=403274033, text=f'{chat_id}: username: {update.message.from_user.username}'
                                              f' text: {text} phone_number: {telegram_user_phone}')
@@ -60,6 +61,6 @@ def do_echo(update: Update, context: CallbackContext):
             try:
                 UserProfile.objects.update_or_create(phone_number=telegram_user_phone,
                                                      defaults={'telegram_id': chat_id})
-                bot.send_message(chat_id=chat_id, text='Відповідач у розробці, він з Вами зв`яжеться трішки пізніше')
+                bot.send_message(chat_id=chat_id, text='Друкую відповідь, чекайте...')
             except Exception as e:
-                bot.send_message(chat_id=chat_id, text='Кажу ж, Ви не є покупцем гастроному')
+                bot.send_message(chat_id=chat_id, text='Напишіть адміну, нехай Вас зареєструє як юзера')

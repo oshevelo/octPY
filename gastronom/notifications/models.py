@@ -3,9 +3,9 @@ from django.contrib.auth.models import User
 
 import logging
 
+from django.utils.datetime_safe import strftime
+
 from gastronom.settings import INSTALLED_APPS
-from notifications.sender import send_email
-from notifications.sender import send_telegram
 from notifications.sender import send_methods
 
 
@@ -26,7 +26,7 @@ class Notification(models.Model):
     send_method = models.CharField(choices=send_methods, default='email', max_length=20)
     timestamp = models.DateTimeField(auto_now_add=True)
     subject = models.TextField(max_length=50, default='GASTRONOM info')
-    message = models.TextField(max_length=200)
+    message = models.TextField(max_length=50)
 
     class Meta:
         ordering = ("-timestamp",)
@@ -97,25 +97,31 @@ telegram to all Users:
 
 class TelegramUser(models.Model):
     chat_id = models.PositiveIntegerField(verbose_name='Telegram User ID', unique=True)
-    telegram_user_name = models.TextField(verbose_name='Telegram User Name', null=True, blank=True)
-    telegram_user_phone = models.TextField(verbose_name='Telegram user phone number', null=True, blank=True)
+    telegram_user_name = models.TextField(verbose_name='Telegram User Name', null=True, blank=True, max_length=50)
+    telegram_user_phone = models.TextField(verbose_name='Telegram user phone number', null=True, blank=True, max_length=50)
 
     def __str__(self):
-        return f'{self.chat_id} {self.telegram_user_name} {self.telegram_user_phone}'
+        return f'{self.telegram_user_name} {self.telegram_user_phone} {self.chat_id}'
 
 
 class TelegramIncomeMessage(models.Model):
-    telegramuser = models.ForeignKey(TelegramUser, on_delete=models.PROTECT)
-    text = models.TextField(verbose_name='Text')
+    telegramuser = models.ForeignKey(TelegramUser, on_delete=models.PROTECT, null=True, blank=True)
+    text = models.TextField(verbose_name='Text', max_length=500)
     created_at = models.DateTimeField(verbose_name='Send time', auto_now_add=True)
+    message_id = models.CharField(max_length=20)
+    chat_id = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
-        return f'Message {self.pk} from {self.telegramuser}: {self.text} {self.created_at}'
+        return f'Message text: {self.text} from: {self.telegramuser}, datetime: ' \
+               f''+'{:%d.%m.%y %H:%M}'.format(self.created_at)+f'id: {self.pk}'
 
     class Meta:
         verbose_name = 'Telegram income message'
 
 
 class TelegramReplyMessage(models.Model):
-    reply_to = models.ForeignKey(TelegramIncomeMessage, on_delete=models.PROTECT)
-    reply_message = models.TextField(max_length=500)
+    reply_to_message = models.ForeignKey(TelegramIncomeMessage, on_delete=models.PROTECT, null=True, blank=True)
+    reply_message = models.TextField(max_length=200)
+
+    def __str__(self):
+        return f'ReplyID: {self.pk}, to: {self.reply_to_message}, text: {self.reply_message}'
