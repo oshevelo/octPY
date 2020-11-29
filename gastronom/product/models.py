@@ -10,28 +10,17 @@ from pilkit.processors import ResizeToFill
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=50, blank=True)
+    name = models.CharField(max_length=50, blank=False)
     descriptions = models.TextField(max_length=1000)
     raiting = models.FloatField(default=0.0)
-    count = models.IntegerField(blank=True)
-    price = models.DecimalField(max_digits=7, decimal_places=2, blank=True)
+    count = models.IntegerField(blank=False)
+    price = models.DecimalField(max_digits=7, decimal_places=2, blank=False)
     sku = models.CharField(max_length=10, blank=True, unique=True)
     categories = models.ManyToManyField(Catalog)
     available = models.BooleanField(default=True, verbose_name="Available")
     
     def __str__(self):
         return f"{self.pk}, {self.name}, {self.sku}"
-
-    def amount_left(self):
-        if self.count <= 0:
-            self.available = False
-            self.save()
-            return 0
-        else:
-            self.available = True
-            self.save()
-        return self.count
-
 
     class Meta:
         ordering = ['name', '-price']
