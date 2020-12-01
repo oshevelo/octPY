@@ -133,3 +133,5 @@ dmypy.json
 #pycharm
 .idea/
 
+# media files
+media/
