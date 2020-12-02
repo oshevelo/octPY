@@ -139,3 +139,5 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 from .local_settings import *
+
+REVIEW_IMAGE_SIZE = 300, 300  # for small image size in review
