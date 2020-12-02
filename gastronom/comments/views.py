@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from .models import Review, ReviewImage, ReviewRating
 from notifications.models import Notification
@@ -13,13 +12,11 @@ class ReviewListCreate(generics.ListCreateAPIView):
     serializer_class = ReviewSerializer
 
 
-
 class ReviewRetrieve(generics.RetrieveUpdateAPIView):
     serializer_class = ReviewSerializer
 
     def get_object(self):
         return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-
 
 
 class ReviewImageListCreate(generics.ListCreateAPIView):
