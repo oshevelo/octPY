@@ -46,6 +46,7 @@ class ReviewImage(models.Model):
 
 
 class ReviewRating(models.Model):
-    liked_review = models.ManyToManyField(Review, related_name='liked_review', blank=True)
-    disliked_review = models.ManyToManyField(Review, related_name='disliked_review', blank=True)
-    rating = models.IntegerField(default=0, blank=True)
+    review_reting = models.ManyToManyField(Review, related_name='review_rating', blank=True)
+    negative_rating = models.IntegerField(default=0, blank=True)
+    positive_rating = models.IntegerField(default=0, blank=True)
+
