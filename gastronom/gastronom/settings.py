@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'comments.apps.CommentsConfig',
     'notifications',
     'catalog',
+    'super_inlines',
     'product.apps.ProductConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -149,6 +150,7 @@ EMAIL_PORT = 587
 # Bot settings
 TOKEN = ''
 PROXY_URL = ''
+CHAT_ID = ''
 
 LOGGING = {
     'version': 1,
