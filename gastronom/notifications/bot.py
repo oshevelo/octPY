@@ -10,13 +10,12 @@ from telegram import Update, Bot, ReplyKeyboardRemove
 from telegram.ext import CallbackContext, ConversationHandler
 from telegram.utils.request import Request
 
-from gastronom.settings import CHAT_ID, EMAIL_HOST_USER
+from gastronom.settings import CHAT_ID, EMAIL_HOST_USER, LOGGING
 from notifications.models import TelegramUser, TelegramIncomeMessage, TelegramReplyMessage
 from user_profile.models import UserProfile
 
 
 FIRST_NAME, LAST_NAME, EMAIL, BIRTH_DATE, GENDER = range(5)
-
 gender_dict = {'Жінка': 'Female', 'Чоловік': 'Male', 'Ще визначаюсь': 'Not_specified'}
 
 logger = logging.getLogger(__name__)

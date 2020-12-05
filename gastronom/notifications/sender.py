@@ -1,10 +1,13 @@
+import logging
+
 from django.core.mail import send_mail
-from gastronom.settings import EMAIL_HOST_USER
+from django.conf import settings
+
 from telegram import Bot
 from telegram.utils.request import Request
-from django.conf import settings
+
+from gastronom.settings import EMAIL_HOST_USER
 from user_profile.models import UserProfile
-import logging
 
 
 logger = logging.getLogger(__name__)
