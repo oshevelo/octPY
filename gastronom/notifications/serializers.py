@@ -7,7 +7,7 @@ from notifications.models import Notification
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ['id', 'source', 'recipient', 'message', 'timestamp', 'send_method']
+        fields = ['id', 'sent', 'source', 'recipient', 'message', 'timestamp', 'send_method']
 
 
 class RecipientSerializer(serializers.ModelSerializer):

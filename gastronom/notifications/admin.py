@@ -1,22 +1,53 @@
+import logging
+
 from django.contrib import admin
-from notifications.models import Notification, TelegramUser, TelegramIncomeMessage, TelegramReplyMessage
-from super_inlines.admin import SuperInlineModelAdmin, SuperModelAdmin
-from telegram import Bot
-from telegram.utils.request import Request
 from django.conf import settings
 from django.forms import TextInput, Textarea
 from django.db import models
 
+from telegram import Bot
+from telegram.utils.request import Request
+
+from super_inlines.admin import SuperInlineModelAdmin, SuperModelAdmin
+
+from gastronom.settings import CHAT_ID
+from notifications.models import Notification, TelegramUser, TelegramIncomeMessage, TelegramReplyMessage
+from notifications.sender import send_methods
+
+logger = logging.getLogger(__name__)
+
+request = Request(connect_timeout=0.5, read_timeout=1.0, con_pool_size=8)
+bot = Bot(request=request, token=settings.TOKEN, base_url=settings.PROXY_URL)
+
 
 class NotificationAdmin(admin.ModelAdmin):
     model = Notification
-    list_display = ('id', 'source', 'recipient', 'send_method', 'timestamp', 'subject', 'message')
+    list_display = ('id', 'sent', 'source', 'recipient', 'send_method', 'timestamp', 'subject', 'message')
     extra = 1
+    # list_display_links = ['recipient']
+    list_filter = ['sent', 'source', 'recipient', 'send_method', 'subject']
+    autocomplete_fields = ['recipient']
+
+    def send_notifications(self, request, queryset):
+        for notification in queryset:
+            send_func = send_methods[notification.send_method]
+            try:
+                send_func(notification.recipient, notification.message, notification.subject)
+                notification.sent = True
+                notification.save()
+            except Exception as e:
+                logger.info(e)
+                bot.send_message(chat_id=CHAT_ID, text=str(e))
+
+    def make_unsent(self, request, queryset):
+        for notification in queryset:
+            notification.sent = False
+            notification.save()
+
+    actions = [send_notifications, make_unsent]
 
 
 def send_reply(TelegramReplyMessageInlineAdmin, request, queryset):
-    bot = Bot(request=Request(connect_timeout=0.5, read_timeout=1.0, con_pool_size=8), token=settings.TOKEN,
-              base_url=settings.PROXY_URL)
     for reply_message in queryset:
         income_message = TelegramIncomeMessage.objects.get(id=reply_message.reply_to_message.id)
         income_message_id = income_message.message_id

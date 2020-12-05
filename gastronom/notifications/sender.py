@@ -10,15 +10,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def send_email(recipient, message):
+def send_email(recipient, message, subject):
     try:
         recipient = [recipient.email]
-        send_mail(subject='GASTRONOM info', message=message, from_email=EMAIL_HOST_USER, recipient_list=recipient)
+        send_mail(subject=subject, message=message, from_email=EMAIL_HOST_USER, recipient_list=recipient)
     except Exception as e:
         logger.error(f'E-mail message to {recipient} has not been sent')
 
 
-def send_telegram(recipient, message):
+def send_telegram(recipient, message, subject):
+    telegram_id = int
     try:
         recipient = UserProfile.objects.get(user=recipient)
         telegram_id = recipient.telegram_id

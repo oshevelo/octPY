@@ -1,11 +1,17 @@
+import logging
+
 from django.db import models
 from django.contrib.auth.models import User
 
-import logging
+from telegram.utils.request import Request
+from telegram import Bot
 
-from gastronom.settings import INSTALLED_APPS
+from gastronom.settings import INSTALLED_APPS, TOKEN, PROXY_URL, CHAT_ID
 from notifications.sender import send_methods
 
+
+request = Request(connect_timeout=0.5, read_timeout=1.0, con_pool_size=8)
+bot = Bot(request=request, token=TOKEN, base_url=PROXY_URL)
 
 logger = logging.getLogger(__name__)
 
@@ -24,14 +30,14 @@ class Notification(models.Model):
     send_method = models.CharField(choices=send_methods, default='email', max_length=20)
     timestamp = models.DateTimeField(auto_now_add=True)
     subject = models.TextField(max_length=50, default='GASTRONOM info')
-    message = models.TextField(max_length=50)
-    is_sent = models.BooleanField(default=False, db_index=True)
+    message = models.TextField(max_length=500)
+    sent = models.BooleanField(default=False, db_index=True)
 
     class Meta:
         ordering = ("-timestamp",)
 
     def __str__(self):
-        return f"{self.source} {self.recipient} {self.subject} {self.message} {self.timestamp} {self.send_method}"
+        return f"{self.sent} {self.source} {self.recipient} {self.subject} {self.message} {self.timestamp} {self.send_method}"
 
     @classmethod
     def create_notifications(cls, source, recipient, message, send_method='email', subject='GASTRONOM info'):
@@ -42,57 +48,51 @@ class Notification(models.Model):
         :param subject: str, subject of notification
         :param message: str, body of notification message
         :param send_method: str, name of send method
+
+        Examples:
+        from django.contrib.auth.models import User
+        from notifications.models import Notification
+        from user_profile.models import UserProfile
+
+        email to list of Users:
+        Notification.create_notifications('notifications', recipient=[User.objects.get(id=1), User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
+
+        email to User:
+        Notification.create_notifications('notifications', recipient=User.objects.get(id=1), message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
+
+        telegram to list of Users:
+        Notification.create_notifications('notifications', recipient=[User.objects.get(id=1), User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
+
+        telegram to User:
+        Notification.create_notifications('notifications', recipient=User.objects.get(id=1), message='Це моя перша телеграма from Django.gastronom', send_method='telegram')
+
+        telegram to all Users:
+        Notification.create_notifications('notifications', recipient=[user for user in User.objects.all()], message='Це моя перша телеграма from Django.gastronom', send_method='telegram')
         """
         if send_method in send_methods:
             send_func = send_methods[send_method]
             if isinstance(recipient, list):
                 for user in recipient:
-                    Notification.objects.create(
-                        source=source,
-                        recipient=user,
-                        subject=subject,
-                        message=message,
-                        send_method=send_method,
-                    )
-                    if send_func(recipient=user, message=message):
-                        Notification.object.update()
+                    n = Notification(source=source, recipient=user, subject=subject, message=message, send_method=send_method)
+                    try:
+                        send_func(recipient=user, message=message, subject=subject)
+                        n.sent = True
+                        n.save()
+                    except Exception as e:
+                        logger.info(e)
+                        bot.send_message(chat_id=CHAT_ID, text=str(e))
             else:
-                Notification.objects.create(
-                    source=source,
-                    recipient=recipient,
-                    subject=subject,
-                    message=message,
-                    send_method=send_method,
-                )
-                send_func(recipient, message)
+                n = Notification(source=source, recipient=recipient, subject=subject, message=message, send_method=send_method)
+                try:
+                    send_func(recipient, message, subject=subject)
+                    n.sent = True
+                    n.save()
+                except Exception as e:
+                    logger.info(e)
+                    bot.send_message(chat_id=CHAT_ID, text=str(e))
         else:
             pass
             logger.error('Invalid send method passed to the create_notifications')
-
-
-"""
-Example:
-
-from django.contrib.auth.models import User
-from notifications.models import Notification
-from user_profile.models import UserProfile
-
-email to list of Users:
-Notification.create_notifications('notifications', recipient=[User.objects.get(id=1), User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
-
-email to User:
-Notification.create_notifications('notifications', recipient=User.objects.get(id=1), message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
-
-telegram to list of Users:
-Notification.create_notifications('notifications', recipient=[User.objects.get(id=1), User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
-
-telegram to User:
-Notification.create_notifications('notifications', recipient=User.objects.get(id=1), message='Це моя перша телеграма from Django.gastronom', send_method='telegram')
-
-telegram to all Users:
- Notification.create_notifications('notifications', recipient=[user for user in User.objects.all()], message='Це моя перша телеграма from Django.gastronom', send_method='telegram')
-
-"""
 
 
 class TelegramUser(models.Model):
@@ -133,4 +133,3 @@ class TelegramReplyMessage(models.Model):
 
     class Meta:
         verbose_name = 'Reply message'
-
