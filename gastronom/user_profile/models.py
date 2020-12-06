@@ -12,13 +12,13 @@ class UserProfile(models.Model):
         ('Female', 'Female'),
         ('Not_specified', 'Not_specified'),
     ]
-    user = models.OneToOneField(User, on_delete=models.PROTECT)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=12)
     email = models.EmailField(max_length=30)
     telegram_id = models.CharField(null=True, blank=True, max_length=50)  # don`t show to user
-    birth_date = models.DateField(auto_now=True)
+    birth_date = models.DateField(blank=True, null=True)
     gender = models.CharField(max_length=13,choices=GENDER_CHOICES, default='Not_specified')
 
     def __str__(self):

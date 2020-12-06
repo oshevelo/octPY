@@ -1,66 +1,199 @@
-from telegram import KeyboardButton, ReplyKeyboardMarkup
-from telegram import Update, Bot
-from telegram.ext import CallbackContext
-from telegram.utils.request import Request
+import logging
+from dateutil.parser import parse
 
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
 
-from notifications.models import TelegramUser, TelegramIncomeMessage
+from telegram import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, Bot, ReplyKeyboardRemove
+from telegram.ext import CallbackContext, ConversationHandler
+from telegram.utils.request import Request
+
+from gastronom.settings import CHAT_ID, EMAIL_HOST_USER, LOGGING
+from notifications.models import TelegramUser, TelegramIncomeMessage, TelegramReplyMessage
 from user_profile.models import UserProfile
+
+
+FIRST_NAME, LAST_NAME, EMAIL, BIRTH_DATE, GENDER = range(5)
+gender_dict = {'Жінка': 'Female', 'Чоловік': 'Male', 'Ще визначаюсь': 'Not_specified'}
+
+logger = logging.getLogger(__name__)
 
 request = Request(connect_timeout=0.5, read_timeout=1.0, con_pool_size=8)
 bot = Bot(request=request, token=settings.TOKEN, base_url=settings.PROXY_URL)
 
 
-def log_errors(f):
-    def inner(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        except Exception as e:
-            error_message = f'An error has occurred: {e}'
-            print(error_message)
-            raise e
-    return inner
-
-
-def do_start(update):
-    button = KeyboardButton(text='Авторизуватись', request_contact=True)
-    update.message.reply_text(text="Без авторизації розмови не буде",
+def do_start(update, context):
+    """
+    Sends to user a button for authorisation
+    :param update: Update
+    :param context: CallbackContext
+    """
+    button = KeyboardButton(text='Надати номер телефону', request_contact=True)
+    update.message.reply_text(text="Для початку, надайте свій номер телефону",
                               reply_markup=ReplyKeyboardMarkup([[button]],
                                                                resize_keyboard=True, one_time_keyboard=True))
 
 
-def contact_callback(update: Update, context: CallbackContext):
-    chat_id = update.effective_message.contact.user_id
+def contact_callback(update, context):
+    """
+    Gets from update the information about user (name, phone number, etc.), writes the telegram user to DB,
+    update user profile field 'telegram_id' if there is a user with given phone number
+    :param update: Update
+    :param context: CallbackContext
+    """
+    username = update.effective_message.chat.username
     contact = update.effective_message.contact
-    phone = contact.phone_number[-12:]
-    TelegramUser.objects.update_or_create(chat_id=chat_id, defaults={'telegram_user_phone': phone})
+    user_phone = contact.phone_number[-12:]
+    chat_id = contact.user_id
+    user_first_name = contact.first_name
+    user_last_name = contact.last_name
+    TelegramUser.objects.update_or_create(chat_id=chat_id,
+                                          defaults={'user_first_name': user_first_name,
+                                                    'user_last_name': user_last_name,
+                                                    'username': username,
+                                                    'user_phone': user_phone})
+    is_user_profile(chat_id, user_phone, update, context)
+
+
+def is_user_profile(chat_id, user_phone, update, context):
     try:
-        UserProfile.objects.update_or_create(phone_number=phone, defaults={'telegram_id': chat_id})
+        user_profile = UserProfile.objects.get(phone_number=user_phone)
+        user_profile.telegram_id = chat_id
+        user_profile.save(update_fields=['telegram_id'], force_update=True)
     except Exception as e:
-        bot.send_message(chat_id=chat_id, text='Ви не є покупцем гастроному')
+        logger.info(e)
+        bot.send_message(CHAT_ID, text=f'{e}')
+        registration(update, context)
 
 
-@log_errors
-def do_echo(update: Update, context: CallbackContext):
-    chat_id = update.message.chat.id
-    text = update.message.text
-    message_id = update.message.message_id
-    p, _ = TelegramUser.objects.update_or_create(chat_id=chat_id,
-                                                 defaults={'telegram_user_name': update.message.from_user.username})
-    TelegramIncomeMessage(telegramuser=p, text=text, message_id=message_id, chat_id=chat_id).save()
-    telegram_user_phone = TelegramUser.objects.get(chat_id=chat_id).telegram_user_phone
-    bot.send_message(chat_id=403274033, text=f'{chat_id}: username: {update.message.from_user.username}'
-                                             f' text: {text} phone_number: {telegram_user_phone}')
-    if text == '/start':
-        return do_start(update)
-    else:
-        if telegram_user_phone is None or telegram_user_phone == '':
-            return do_start(update)
+def registration(update, context):
+    button = [[InlineKeyboardButton(text='Зареєструватись', callback_data='reg')]]
+    update.message.reply_text(text='Ви не є покупцем гастроному, будь ласка, пройдіть реєстрацію!',
+                              reply_markup=InlineKeyboardMarkup(button))
+
+
+def do_echo(update, context):
+    """
+    Makes object 'income message' in DB.
+    :param update: Update
+    :return:
+    """
+    chat_id = update.message.chat.id  # chat_id from income message
+    text = update.message.text  # income message text
+
+    if chat_id == CHAT_ID:  # if message came from me
+        reply = update.message.reply_to_message  # to which message this my reply
+        if reply.forward_from is None:
+            first_name = reply.forward_sender_name.split(' ')[0]
+            last_name = reply.forward_sender_name.split(' ')[1]
+            bot.send_message(chat_id=TelegramUser.objects.get(user_first_name=first_name,
+                                                              user_last_name=last_name).chat_id,
+                             text=text)
+
         else:
-            try:
-                UserProfile.objects.update_or_create(phone_number=telegram_user_phone,
-                                                     defaults={'telegram_id': chat_id})
-                bot.send_message(chat_id=chat_id, text='Друкую відповідь, чекайте...')
-            except Exception as e:
-                bot.send_message(chat_id=chat_id, text='Напишіть адміну, нехай Вас зареєструє як юзера')
+            bot.send_message(chat_id=reply.forward_from.id, text=text)  # forward my reply to user
+        TelegramReplyMessage(
+                reply_to_message=TelegramIncomeMessage.objects.get(text=reply.text),
+                reply_message=text).save()
+    else:
+        message_id = update.message.message_id
+        bot.forward_message(chat_id=CHAT_ID, from_chat_id=chat_id, message_id=message_id)
+        t, _ = TelegramUser.objects.update_or_create(chat_id=chat_id,
+                                                     defaults={'chat_id': chat_id,
+                                                               'username': update.message.from_user.username,
+                                                               'user_first_name': update.message.from_user.first_name,
+                                                               'user_last_name': update.message.from_user.last_name})
+        TelegramIncomeMessage(telegramuser=t, text=text, message_id=message_id, chat_id=chat_id,
+                              date=update.message.date).save()
+
+        user_phone = str
+        try:
+            user_phone = TelegramUser.objects.get(chat_id=chat_id).user_phone
+        except Exception as e:
+            bot.send_message(CHAT_ID, text=f'{e}')
+            logger.info(e)
+            return do_start(update, context)
+
+        if text == '/start' or user_phone is None or user_phone == '':
+            return do_start(update, context)
+
+        is_user_profile(chat_id, user_phone, update, context)
+
+
+def reg_handler(update: Update, context: CallbackContext):
+    update.effective_message.reply_text("Вкажіть Ваше ім`я:")
+    return FIRST_NAME
+
+
+def first_name_handler(update: Update, context: CallbackContext):
+    context.user_data[FIRST_NAME] = update.effective_message.text
+    update.effective_message.reply_text(f'Дякую, {context.user_data[FIRST_NAME]}, тепер вкажіть Ваше прізвище:')
+    return LAST_NAME
+
+
+def last_name_handler(update, context):
+    context.user_data[LAST_NAME] = update.effective_message.text
+    update.effective_message.reply_text(f'Надрукуйте будь ласка свій e-mail')
+    return EMAIL
+
+
+def email_handler(update, context):
+    context.user_data[EMAIL] = update.effective_message.text
+    try:
+        send_mail(subject='GASTRONOM registration',
+                  message='Ви в процесі реєстрації, по всім питанням пишіть нам у Telegram @GASTRONOM_django_bot',
+                  from_email=EMAIL_HOST_USER,
+                  recipient_list=[context.user_data[EMAIL]])
+    except Exception as e:
+        logger.info(e)
+        update.effective_message.reply_text(f'Ви надрукували неправильний e-mail, спробуйте ще раз!')
+        bot.send_message(CHAT_ID, text=f'{e}')
+        return LAST_NAME
+    update.effective_message.reply_text(f'Дата Вашого народження: дд-мм-рррр')
+    return BIRTH_DATE
+
+
+def birth_date_handler(update: Update, context: CallbackContext):
+    context.user_data[BIRTH_DATE] = update.effective_message.text
+    try:
+        parse(str(context.user_data[BIRTH_DATE]), dayfirst=True)
+    except Exception as e:
+        logger.info(e)
+        update.effective_message.reply_text(f'Неправильний формат дати, спробуйте ще раз!')
+        bot.send_message(CHAT_ID, text=f'{e}')
+        return BIRTH_DATE
+
+    gender_keys = [['Жінка'], ['Чоловік'], ['Ще визначаюсь']]
+    update.effective_message.reply_text(text='Це останнє, вкажіть Вашу стать:',
+                                        reply_markup=ReplyKeyboardMarkup(gender_keys, one_time_keyboard=True))
+    return GENDER
+
+
+def finish_handler(update: Update, context: CallbackContext):
+    gender = update.effective_message.text
+    context.user_data[GENDER] = gender_dict[gender]
+    try:
+        u, _ = User.objects.update_or_create(email=context.user_data[EMAIL],
+                                             defaults={'first_name': context.user_data[FIRST_NAME],
+                                                       'last_name': context.user_data[LAST_NAME],
+                                                       'username': f'{context.user_data[FIRST_NAME][0]}'
+                                                                   f'{context.user_data[LAST_NAME]}'})
+        UserProfile.objects.update_or_create(
+            user=u,
+            defaults={'first_name': u.first_name,
+                      'last_name': u.last_name,
+                      'phone_number': TelegramUser.objects.get(chat_id=update.effective_message.chat_id).user_phone,
+                      'email': u.email,
+                      'telegram_id': update.effective_message.chat_id,
+                      'birth_date': parse(context.user_data[BIRTH_DATE]),
+                      'gender': context.user_data[GENDER]})
+        update.effective_message.reply_text(f'Вітаю! Реєстрація успішна!\n'
+                                            f' Ви можете друкувати повідомлення та отримувати новини Гастроному',
+                                            reply_markup=ReplyKeyboardRemove())
+    except Exception as e:
+        logger.info(e)
+        update.effective_message.reply_text(f'Під час реєстрації виникла помилка але ми це виправимо!')
+        bot.send_message(CHAT_ID, text=f'{e}')
+    return ConversationHandler.END
