@@ -5,13 +5,17 @@ from django.contrib.auth.models import User
 
 from telegram.utils.request import Request
 from telegram import Bot
-
+from telegram.error import InvalidToken
 from gastronom.settings import INSTALLED_APPS, TOKEN, PROXY_URL, CHAT_ID
 from notifications.sender import send_methods
 
 
-request = Request(connect_timeout=0.5, read_timeout=1.0, con_pool_size=8)
-bot = Bot(request=request, token=TOKEN, base_url=PROXY_URL)
+try:
+    request = Request(connect_timeout=0.5, read_timeout=1.0, con_pool_size=8)
+    bot = Bot(request=request, token=TOKEN, base_url=PROXY_URL)
+except InvalidToken: 
+    request = None
+    bot = None  
 
 logger = logging.getLogger(__name__)
 

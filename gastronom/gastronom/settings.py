@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'comments.apps.CommentsConfig',
     'notifications',
     'catalog',
-    'super_inlines',
+    #'super_inlines',
     'product.apps.ProductConfig',
     'django.contrib.admin',
     'django.contrib.auth',

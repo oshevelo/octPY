@@ -7,8 +7,9 @@ from django.db import models
 
 from telegram import Bot
 from telegram.utils.request import Request
+from telegram.error import InvalidToken
 
-from super_inlines.admin import SuperInlineModelAdmin, SuperModelAdmin
+#from super_inlines.admin import SuperInlineModelAdmin, SuperModelAdmin
 
 from gastronom.settings import CHAT_ID
 from notifications.models import Notification, TelegramUser, TelegramIncomeMessage, TelegramReplyMessage
@@ -16,8 +17,13 @@ from notifications.sender import send_methods
 
 logger = logging.getLogger(__name__)
 
-request = Request(connect_timeout=0.5, read_timeout=1.0, con_pool_size=8)
-bot = Bot(request=request, token=settings.TOKEN, base_url=settings.PROXY_URL)
+try:
+    request = Request(connect_timeout=0.5, read_timeout=1.0, con_pool_size=8)
+    bot = Bot(request=request, token=settings.TOKEN, base_url=settings.PROXY_URL)
+except InvalidToken: 
+    request = None
+    bot = None  
+
 
 
 class NotificationAdmin(admin.ModelAdmin):
@@ -55,8 +61,7 @@ def send_reply(TelegramReplyMessageInlineAdmin, request, queryset):
         text = reply_message.reply_message
         bot.send_message(reply_to_message_id=income_message_id, chat_id=chat_id, text=text)
 
-
-class TelegramReplyMessageInlineAdmin(SuperInlineModelAdmin, admin.StackedInline):
+class TelegramReplyMessageInlineAdmin(admin.StackedInline):
     model = TelegramReplyMessage
     list_display = ('id', 'reply_message', 'reply_to_message')
     extra = 1
@@ -74,7 +79,7 @@ class TelegramReplyMessageAdmin(admin.ModelAdmin):
     extra = 1
 
 
-class TelegramIncomeMessageInlineAdmin(SuperInlineModelAdmin, admin.StackedInline):
+class TelegramIncomeMessageInlineAdmin(admin.StackedInline):
     model = TelegramIncomeMessage
     extra = 1
     list_display = ('telegramuser', 'id', 'date', 'message_id', 'chat_id', 'text')
@@ -92,7 +97,7 @@ class TelegramIncomeMessageAdmin(admin.ModelAdmin):
     list_display = ('telegramuser', 'text', 'id', 'date', 'message_id', 'chat_id')
 
 
-class TelegramUserAdmin(SuperModelAdmin):
+class TelegramUserAdmin(admin.ModelAdmin):
     model = TelegramUser
     list_display = ('id', 'chat_id', 'username', 'user_phone')
     inlines = [TelegramIncomeMessageInlineAdmin]
