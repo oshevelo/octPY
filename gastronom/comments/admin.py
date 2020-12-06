@@ -1,21 +1,21 @@
 from django.contrib import admin
-from .models import Review, GalleryImageReview
+from .models import Review, ReviewImage
 # Register your models here.
 
 
-class GalleryImageReviewInline(admin.TabularInline):
-    model = GalleryImageReview
+class ReviewImageInline(admin.TabularInline):
+    model = ReviewImage
     extra = 2
 
 
 class ReviewAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None,               {'fields': ['user', 'text', 'reply_to']}),
+        (None,               {'fields': ['user','product', 'text', 'reply_to']}),
     ]
-    inlines = [GalleryImageReviewInline]
+    inlines = [ReviewImageInline]
     list_filter = ['created']
-    search_fields = ['user', 'text']
+    search_fields = ['user', 'text', 'product']
 
 
 admin.site.register(Review, ReviewAdmin)
-admin.site.register(GalleryImageReview)
+admin.site.register(ReviewImage)

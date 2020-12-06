@@ -39,6 +39,7 @@ class Product(models.Model):
         ordering = ['name', '-price']
 
 
+
 class Media(models.Model):
     #filename = str(datetime.now().strftime("%Y-%m-%d"))
     #upload_path = "products/" + filename

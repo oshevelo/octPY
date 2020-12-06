@@ -188,3 +188,5 @@ LOGGING = {
 
 
 from .local_settings import *
+
+REVIEW_IMAGE_SIZE = 300, 300  # for small image size in review
