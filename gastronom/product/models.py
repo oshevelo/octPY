@@ -1,12 +1,14 @@
 from django.db import models
 from django.utils.text import slugify
-from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.files.base import ContentFile
 
 from catalog.models import Catalog
 from gastronom.settings import PRODUCT_IMAGE_SIZE
 
-from imagekit.models import ImageSpecField
-from pilkit.processors import ResizeToFill
+from datetime import datetime
+from PIL import Image
+from io import BytesIO
+import os
 
 
 class Product(models.Model):
@@ -27,24 +29,48 @@ class Product(models.Model):
 
 
 class ProductMedia(models.Model):
-
-    medium_size = PRODUCT_IMAGE_SIZE['medium']
-    thumbnail_size = PRODUCT_IMAGE_SIZE['thumbnail']
-
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='mediafiles')
-    image = models.ImageField(upload_to='products/%Y/%m/%d/original/', null=True)
+    original_image = models.ImageField(upload_to='products/%Y/%m/%d/original/', null=True)
+    thumbnail_image = models.ImageField(upload_to='products/%Y/%m/%d/thumbnails/', null=True, editable=False)
 
-    thumbnail_image = ImageSpecField(
-                source='image',
-                cachefile_storage='products/%Y/%m/%d/thumbnail/',
-                processors=[ResizeToFill(width=thumbnail_size[0], height=thumbnail_size[1])],
-                options={'quality': 60})
 
-    medium_image = ImageSpecField(
-                source='image',
-                cachefile_storage='products/%Y/%m/%d/medium/',
-                processors=[ResizeToFill(width=medium_size[0], height=medium_size[1])],
-                options={'quality': 60})
+    def save(self):
+        for sizes in PRODUCT_IMAGE_SIZE.values():
+
+            if not self.make_thumbnail(sizes):
+
+                raise Exception('Could not create thumbnail - is the file type valid?')
+        
+        super(ProductMedia, self).save()
+
+    def make_thumbnail(self, sizes):
+        image = Image.open(self.original_image)
+        image.thumbnail(sizes, Image.ANTIALIAS)
+
+        thumb_name, thumb_extension = os.path.splitext(self.original_image.name)
+        thumb_extension = thumb_extension.lower()
+
+        thumb_filename = thumb_name + '_thumb' + thumb_extension
+
+        if thumb_extension in ['.jpg', '.jpeg']:
+            FTYPE = 'JPEG'
+        elif thumb_extension == '.gif':
+            FTYPE = 'GIF'
+        elif thumb_extension == '.png':
+            FTYPE = 'PNG'
+        else:
+            return False    # Unrecognized file type
+
+        # Save thumbnail to in-memory file as StringIO
+        temp_thumb = BytesIO()
+        image.save(temp_thumb, FTYPE)
+        temp_thumb.seek(0)
+
+        # set save=False, otherwise it will run in an infinite loop
+        self.thumbnail_image.save(thumb_filename, ContentFile(temp_thumb.read()), save=False)
+        temp_thumb.close()
+
+        return True
 
 
 
