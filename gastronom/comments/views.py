@@ -8,7 +8,7 @@ from comments.serializers import ReviewSerializer, ReviewImageSerializer, Review
 
 
 class ReviewListCreate(generics.ListCreateAPIView):
-    queryset = Review.objects.all().order_by('-created')
+    queryset = Review.objects.filter(reply_to=None).order_by('-created')
     serializer_class = ReviewSerializer
 
 
