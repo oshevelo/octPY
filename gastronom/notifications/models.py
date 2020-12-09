@@ -35,67 +35,44 @@ class Notification(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     subject = models.TextField(max_length=50, default='GASTRONOM info')
     message = models.TextField(max_length=500)
-    sent = models.BooleanField(default=False, db_index=True)
+    is_sent = models.BooleanField(default=False, db_index=True)
+    sent_time = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         ordering = ("-timestamp",)
 
     def __str__(self):
-        return f"{self.sent} {self.source} {self.recipient} {self.subject} {self.message} {self.timestamp} {self.send_method}"
+        return f"{self.is_sent} {self.sent_time} {self.source} {self.recipient} {self.subject} {self.message} {self.timestamp} {self.send_method}"
 
     @classmethod
-    def create_notifications(cls, source, recipient, message, send_method='email', subject='GASTRONOM info'):
+    def create_notifications(cls, source, recipients, message, send_method='email', subject='GASTRONOM info'):
         """
         Create and save notification objects to database
         :param source: str, name of app making notification
-        :param recipient: class User object or list of class User objects
+        :param recipients: list of class User objects
         :param subject: str, subject of notification
         :param message: str, body of notification message
         :param send_method: str, name of send method
 
-        Examples:
-        from django.contrib.auth.models import User
-        from notifications.models import Notification
-        from user_profile.models import UserProfile
-
-        email to list of Users:
-        Notification.create_notifications('notifications', recipient=[User.objects.get(id=1), User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
-
-        email to User:
-        Notification.create_notifications('notifications', recipient=User.objects.get(id=1), message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
-
-        telegram to list of Users:
-        Notification.create_notifications('notifications', recipient=[User.objects.get(id=1), User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
-
-        telegram to User:
-        Notification.create_notifications('notifications', recipient=User.objects.get(id=1), message='Це моя перша телеграма from Django.gastronom', send_method='telegram')
-
-        telegram to all Users:
-        Notification.create_notifications('notifications', recipient=[user for user in User.objects.all()], message='Це моя перша телеграма from Django.gastronom', send_method='telegram')
+    Examples:
+from django.contrib.auth.models import User
+from notifications.models import Notification
+from user_profile.models import UserProfile
+            email to list of Users:
+Notification.create_notifications('notifications', recipients=[User.objects.get(id=1), User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
+            telegram to list of Users:
+Notification.create_notifications('notifications', recipients=[User.objects.get(id=1), User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
+            telegram to all Users:
+Notification.create_notifications('notifications', recipients=[user for user in User.objects.all()], message='Це моя перша телеграма from
+Django.gastronom', send_method='telegram')
         """
         if send_method in send_methods:
             send_func = send_methods[send_method]
-            if isinstance(recipient, list):
-                for user in recipient:
-                    n = Notification(source=source, recipient=user, subject=subject, message=message, send_method=send_method)
-                    try:
-                        send_func(recipient=user, message=message, subject=subject)
-                        n.sent = True
-                        n.save()
-                    except Exception as e:
-                        logger.info(e)
-                        bot.send_message(chat_id=CHAT_ID, text=str(e))
-            else:
-                n = Notification(source=source, recipient=recipient, subject=subject, message=message, send_method=send_method)
-                try:
-                    send_func(recipient, message, subject=subject)
-                    n.sent = True
-                    n.save()
-                except Exception as e:
-                    logger.info(e)
-                    bot.send_message(chat_id=CHAT_ID, text=str(e))
+            for user in recipients:
+                n = Notification(source=source, recipient=user, subject=subject, message=message, send_method=send_method)
+                n.save()
+                send_func(n)
         else:
-            pass
             logger.error('Invalid send method passed to the create_notifications')
 
 

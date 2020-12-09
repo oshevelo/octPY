@@ -9,7 +9,7 @@ from telegram import Bot
 from telegram.utils.request import Request
 from telegram.error import InvalidToken
 
-#from super_inlines.admin import SuperInlineModelAdmin, SuperModelAdmin
+from super_inlines.admin import SuperInlineModelAdmin, SuperModelAdmin
 
 from gastronom.settings import CHAT_ID
 from notifications.models import Notification, TelegramUser, TelegramIncomeMessage, TelegramReplyMessage
@@ -25,22 +25,20 @@ except InvalidToken:
     bot = None  
 
 
-
 class NotificationAdmin(admin.ModelAdmin):
     model = Notification
-    list_display = ('id', 'sent', 'source', 'recipient', 'send_method', 'timestamp', 'subject', 'message')
+    list_display = ('id', 'is_sent', 'sent_time', 'source', 'recipient', 'send_method', 'timestamp', 'subject', 'message')
     extra = 1
     # list_display_links = ['recipient']
-    list_filter = ['sent', 'source', 'recipient', 'send_method', 'subject']
+    list_filter = ['is_sent', 'source', 'recipient', 'send_method', 'subject']
     autocomplete_fields = ['recipient']
 
     def send_notifications(self, request, queryset):
         for notification in queryset:
             send_func = send_methods[notification.send_method]
             try:
-                send_func(notification.recipient, notification.message, notification.subject)
-                notification.sent = True
-                notification.save()
+                send_func(notification)
+
             except Exception as e:
                 logger.info(e)
                 bot.send_message(chat_id=CHAT_ID, text=str(e))
@@ -61,7 +59,8 @@ def send_reply(TelegramReplyMessageInlineAdmin, request, queryset):
         text = reply_message.reply_message
         bot.send_message(reply_to_message_id=income_message_id, chat_id=chat_id, text=text)
 
-class TelegramReplyMessageInlineAdmin(admin.StackedInline):
+
+class TelegramReplyMessageInlineAdmin(admin.StackedInline, SuperInlineModelAdmin):
     model = TelegramReplyMessage
     list_display = ('id', 'reply_message', 'reply_to_message')
     extra = 1
@@ -79,7 +78,7 @@ class TelegramReplyMessageAdmin(admin.ModelAdmin):
     extra = 1
 
 
-class TelegramIncomeMessageInlineAdmin(admin.StackedInline):
+class TelegramIncomeMessageInlineAdmin(admin.StackedInline, SuperInlineModelAdmin):
     model = TelegramIncomeMessage
     extra = 1
     list_display = ('telegramuser', 'id', 'date', 'message_id', 'chat_id', 'text')
