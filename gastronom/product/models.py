@@ -1,11 +1,13 @@
 from django.db import models
 from django.utils.text import slugify
 from django.core.files.base import ContentFile
+from django.core.validators import MinValueValidator
 
 from catalog.models import Catalog
 from gastronom.settings import PRODUCT_IMAGE_SIZE
 
 from datetime import datetime
+from decimal import Decimal
 from PIL import Image
 from io import BytesIO
 import os
@@ -15,10 +17,10 @@ class Product(models.Model):
     name = models.CharField(max_length=50, blank=False)
     descriptions = models.TextField(max_length=1000)
     raiting = models.FloatField(default=0.0)
-    count = models.IntegerField(blank=False)
-    price = models.DecimalField(max_digits=7, decimal_places=2, blank=False)
-    sku = models.CharField(max_length=10, blank=True, unique=True)
-    categories = models.ManyToManyField(Catalog)
+    count = models.PositiveSmallIntegerField(blank=False)
+    price = models.DecimalField(max_digits=7, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))], blank=False)
+    sku = models.CharField(max_length=10, blank=False, unique=True)
+    categories = models.ManyToManyField(Catalog, verbose_name="Category")
     available = models.BooleanField(default=True, verbose_name="Available")
     
     def __str__(self):
@@ -45,30 +47,33 @@ class ProductMedia(models.Model):
 
     def make_thumbnail(self, sizes):
         image = Image.open(self.original_image)
-        image.thumbnail(sizes, Image.ANTIALIAS)
 
-        thumb_name, thumb_extension = os.path.splitext(self.original_image.name)
-        thumb_extension = thumb_extension.lower()
+        if image.height > sizes[0] or image.width > sizes[1]:
 
-        thumb_filename = thumb_name + '_thumb' + thumb_extension
+            image.thumbnail(sizes, Image.ANTIALIAS)
 
-        if thumb_extension in ['.jpg', '.jpeg']:
-            FTYPE = 'JPEG'
-        elif thumb_extension == '.gif':
-            FTYPE = 'GIF'
-        elif thumb_extension == '.png':
-            FTYPE = 'PNG'
-        else:
-            return False    # Unrecognized file type
+            thumb_name, thumb_extension = os.path.splitext(self.original_image.name)
+            thumb_extension = thumb_extension.lower()
 
-        # Save thumbnail to in-memory file as StringIO
-        temp_thumb = BytesIO()
-        image.save(temp_thumb, FTYPE)
-        temp_thumb.seek(0)
+            thumb_filename = thumb_name + '_thumb' + thumb_extension
 
-        # set save=False, otherwise it will run in an infinite loop
-        self.thumbnail_image.save(thumb_filename, ContentFile(temp_thumb.read()), save=False)
-        temp_thumb.close()
+            if thumb_extension in ['.jpg', '.jpeg']:
+                FTYPE = 'JPEG'
+            elif thumb_extension == '.gif':
+                FTYPE = 'GIF'
+            elif thumb_extension == '.png':
+                FTYPE = 'PNG'
+            else:
+                return False    # Unrecognized file type
+
+            # Save thumbnail to in-memory file as StringIO
+            temp_thumb = BytesIO()
+            image.save(temp_thumb, FTYPE)
+            temp_thumb.seek(0)
+
+            # set save=False, otherwise it will run in an infinite loop
+            self.thumbnail_image.save(thumb_filename, ContentFile(temp_thumb.read()), save=False)
+            temp_thumb.close()
 
         return True
 
