@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'catalog',
     'super_inlines',
     'product.apps.ProductConfig',
+    'cart',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -47,7 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'discount',
-    'cart',
 ]
 
 MIDDLEWARE = [
@@ -141,6 +141,13 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+PRODUCT_IMAGE_SIZE = {
+    'thumbnail': (150, 150),
+    'medium': (300,300),
+    'medium_large': (768, 768),
+    'large': (1024, 1024)
+}
 
 # e-mail settings
 EMAIL_HOST = 'smtp.gmail.com'
