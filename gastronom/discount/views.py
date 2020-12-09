@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import LimitOffsetPagination
 
 from .DiscountRequestAdapter import *
 from .application.DiscountService import DiscountService
@@ -12,6 +13,7 @@ from .serializers import DiscountPostSerializer
 class Discounts(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (TokenAuthentication, BasicAuthentication)
+    pagination_class = LimitOffsetPagination
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
