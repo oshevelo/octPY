@@ -14,7 +14,7 @@ class ProductMediaNestedSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ProductMedia
-        fields = ['id', 'image']
+        fields = ['id', 'original_image', 'thumbnail_image']
 
 
 class CharacteristicNestedSerializer(serializers.ModelSerializer):
@@ -27,6 +27,9 @@ class CharacteristicNestedSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     media = ProductMediaNestedSerializer(many=True, read_only=True)
     characteristics = CharacteristicNestedSerializer(many=True, read_only=True)
+    # url = serializers.HyperlinkedIdentityField(view_name='products-detail')
+    
+    
     class Meta:
         model = Product
         fields = ['id', 'name', 'sku', 'descriptions', 'raiting', 'count', 'price', 'available', 'characteristics', 'media']
@@ -37,7 +40,7 @@ class ProductMediaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductMedia
-        fields = ['id', 'image', 'product']
+        fields = ['id', 'original_image', 'thumbnail_image', 'product']
         
 
 class CharacteristicSerializer(serializers.ModelSerializer):

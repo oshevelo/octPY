@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 
 
 from rest_framework import generics, filters
+from rest_framework.pagination import LimitOffsetPagination
 
 from product.models import Product, ProductMedia, Characteristic
 from product.serializers import ProductSerializer, ProductMediaSerializer, CharacteristicSerializer
@@ -9,6 +10,7 @@ from product.serializers import ProductSerializer, ProductMediaSerializer, Chara
 class ProductList(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    pagination_class = LimitOffsetPagination
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     ordering_fields = ['price', 'raiting']
     search_fields = ['name', 'price', 'raiting']
