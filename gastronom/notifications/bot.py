@@ -179,7 +179,7 @@ def finish_handler(update: Update, context: CallbackContext):
                                              defaults={'first_name': context.user_data[FIRST_NAME],
                                                        'last_name': context.user_data[LAST_NAME],
                                                        'username': f'{context.user_data[FIRST_NAME][0]}'
-                                                                   f'{context.user_data[LAST_NAME]}'})
+                                                                   f'{context.user_data[LAST_NAME][0]} {context.user_data[EMAIL]}'})
         UserProfile.objects.update_or_create(
             user=u,
             defaults={'first_name': u.first_name,
