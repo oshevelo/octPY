@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import LimitOffsetPagination
 
 from .models import Cart, CartItem
 from .serializers import CartSerializer, CartItemSerializer
@@ -8,10 +9,11 @@ from .serializers import CartSerializer, CartItemSerializer
 
 class CartList(generics.ListCreateAPIView):
     serializer_class = CartSerializer
+    pagination_class = LimitOffsetPagination
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Cart.objects.filter(user_id=self.request.user.id)
+        return Cart.objects.all()
 
 
 class CartDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -27,6 +29,7 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class CartItemList(generics.ListCreateAPIView):
     serializer_class = CartItemSerializer
+    pagination_class = LimitOffsetPagination
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):

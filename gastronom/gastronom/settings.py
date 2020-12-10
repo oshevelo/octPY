@@ -38,8 +38,9 @@ INSTALLED_APPS = [
     'comments.apps.CommentsConfig',
     'notifications',
     'catalog',
-    #'super_inlines',
+    'super_inlines',
     'product.apps.ProductConfig',
+    'cart',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -47,7 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'discount',
-    'cart',
 ]
 
 MIDDLEWARE = [
@@ -125,7 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Kiev'
 
 USE_I18N = True
 
@@ -141,6 +141,13 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+PRODUCT_IMAGE_SIZE = {
+    'thumbnail': (150, 150),
+    'medium': (300,300),
+    'medium_large': (768, 768),
+    'large': (1024, 1024)
+}
 
 # e-mail settings
 EMAIL_HOST = 'smtp.gmail.com'
@@ -179,10 +186,7 @@ LOGGING = {
         }
     },
     'loggers': {
-        'django': {
-            'level': 'INFO',
-            'handlers': ['console', 'file']
-        }
+        'notifications': {'level': 'INFO', 'handlers': ['console', 'file']},
     }
 }
 
