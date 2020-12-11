@@ -18,10 +18,11 @@ class RecursiveSerializer(serializers.Serializer):
 
 
 class ReviewImageSerializer(serializers.ModelSerializer):
-
+    
     class Meta:
         model = ReviewImage
         fields = ['review_photo', 'raw_photo','review']
+        read_only_fields = ['review_photo']
 
 
 class ReviewRatingSerializer(serializers.ModelSerializer):
