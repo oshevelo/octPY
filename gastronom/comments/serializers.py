@@ -21,7 +21,7 @@ class ReviewImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ReviewImage
-        fields = ['review_photo', 'review']
+        fields = ['review_photo', 'raw_photo','review']
 
 
 class ReviewRatingSerializer(serializers.ModelSerializer):
