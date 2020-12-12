@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 from telegram.utils.request import Request
 from telegram import Bot
 from telegram.error import InvalidToken
+
 from gastronom.settings import INSTALLED_APPS, TOKEN, PROXY_URL, CHAT_ID
-from notifications.sender import send_methods
 
 
 try:
@@ -44,37 +44,6 @@ class Notification(models.Model):
     def __str__(self):
         return f"{self.is_sent} {self.sent_time} {self.source} {self.recipient} {self.subject} {self.message} {self.timestamp} {self.send_method}"
 
-    @classmethod
-    def create_notifications(cls, source, recipients, message, send_method='email', subject='GASTRONOM info'):
-        """
-        Create and save notification objects to database
-        :param source: str, name of app making notification
-        :param recipients: list of class User objects
-        :param subject: str, subject of notification
-        :param message: str, body of notification message
-        :param send_method: str, name of send method
-
-    Examples:
-from django.contrib.auth.models import User
-from notifications.models import Notification
-from user_profile.models import UserProfile
-            email to list of Users:
-Notification.create_notifications('notifications', recipients=[User.objects.get(id=1), User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
-            telegram to list of Users:
-Notification.create_notifications('notifications', recipients=[User.objects.get(id=1), User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
-            telegram to all Users:
-Notification.create_notifications('notifications', recipients=[user for user in User.objects.all()], message='Це моя перша телеграма from
-Django.gastronom', send_method='telegram')
-        """
-        if send_method in send_methods:
-            send_func = send_methods[send_method]
-            for user in recipients:
-                n = Notification(source=source, recipient=user, subject=subject, message=message, send_method=send_method)
-                n.save()
-                send_func(n)
-        else:
-            logger.error('Invalid send method passed to the create_notifications')
-
 
 class TelegramUser(models.Model):
     chat_id = models.PositiveIntegerField(verbose_name='User ID', unique=True)
@@ -98,8 +67,8 @@ class TelegramIncomeMessage(models.Model):
     chat_id = models.CharField(max_length=20, null=True, blank=True, verbose_name='Chat_id')
 
     def __str__(self):
-        return f'Message text: {self.text} from: {self.telegramuser}, datetime: ' \
-               f''+'{:%d.%m.%y %H:%M}'.format(self.date)+f'id: {self.pk}'
+        return f'"{self.text}" FROM: {self.telegramuser.user_first_name} {self.telegramuser.user_last_name} '+'{:%d.%m.%y %H:%M:%S}'.format(
+            self.date)
 
     class Meta:
         verbose_name = 'Income message'
@@ -108,6 +77,8 @@ class TelegramIncomeMessage(models.Model):
 class TelegramReplyMessage(models.Model):
     reply_to_message = models.ForeignKey('TelegramIncomeMessage', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Income message')
     reply_message = models.TextField(max_length=200, verbose_name='Reply message')
+    is_sent = models.BooleanField(default=False, db_index=True)
+    sent_time = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f'ReplyID: {self.pk}, to: {self.reply_to_message}, text: {self.reply_message}'

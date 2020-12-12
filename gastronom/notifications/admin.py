@@ -9,11 +9,11 @@ from telegram import Bot
 from telegram.utils.request import Request
 from telegram.error import InvalidToken
 
-from super_inlines.admin import SuperInlineModelAdmin, SuperModelAdmin
+# from super_inlines.admin import SuperInlineModelAdmin, SuperModelAdmin
 
 from gastronom.settings import CHAT_ID
 from notifications.models import Notification, TelegramUser, TelegramIncomeMessage, TelegramReplyMessage
-from notifications.sender import send_methods
+from notifications.tasks import send_telegram_task, send_methods, send_telegram_reply_task
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ class NotificationAdmin(admin.ModelAdmin):
         for notification in queryset:
             send_func = send_methods[notification.send_method]
             try:
-                send_func(notification)
+                send_func(notification.id)
 
             except Exception as e:
                 logger.info(e)
@@ -53,32 +53,28 @@ class NotificationAdmin(admin.ModelAdmin):
 
 def send_reply(TelegramReplyMessageInlineAdmin, request, queryset):
     for reply_message in queryset:
-        income_message = TelegramIncomeMessage.objects.get(id=reply_message.reply_to_message.id)
-        income_message_id = income_message.message_id
-        chat_id = income_message.chat_id
-        text = reply_message.reply_message
-        bot.send_message(reply_to_message_id=income_message_id, chat_id=chat_id, text=text)
+        send_telegram_reply_task.delay(reply_message.id)
 
 
-class TelegramReplyMessageInlineAdmin(admin.StackedInline, SuperInlineModelAdmin):
+class TelegramReplyMessageInlineAdmin(admin.StackedInline):  #, SuperInlineModelAdmin):
     model = TelegramReplyMessage
     list_display = ('id', 'reply_message', 'reply_to_message')
     extra = 1
     actions = [send_reply]
     formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size': '20'})},
-        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 200})},
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 100})},
     }
 
 
 class TelegramReplyMessageAdmin(admin.ModelAdmin):
     model = TelegramReplyMessage
-    list_display = ('id', 'reply_to_message', 'reply_message')
+    list_display = ('id', 'is_sent', 'sent_time', 'reply_message', 'reply_to_message')
     actions = [send_reply]
     extra = 1
 
 
-class TelegramIncomeMessageInlineAdmin(admin.StackedInline, SuperInlineModelAdmin):
+class TelegramIncomeMessageInlineAdmin(admin.StackedInline):  #, SuperInlineModelAdmin):
     model = TelegramIncomeMessage
     extra = 1
     list_display = ('telegramuser', 'id', 'date', 'message_id', 'chat_id', 'text')
@@ -86,7 +82,7 @@ class TelegramIncomeMessageInlineAdmin(admin.StackedInline, SuperInlineModelAdmi
     inlines = (TelegramReplyMessageInlineAdmin,)
     formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size': '20'})},
-        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 200})},
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 100})},
     }
 
 

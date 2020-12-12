@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'comments.apps.CommentsConfig',
     'notifications',
     'catalog',
-    'super_inlines',
+    # 'super_inlines',
+    'django_celery_results',
     'product.apps.ProductConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -49,6 +50,19 @@ INSTALLED_APPS = [
     'discount',
     'cart',
 ]
+
+# celery setting.
+CELERY_CACHE_BACKEND = 'default'
+
+# django setting.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    }
+}
+CELERY_RESULT_BACKEND = 'django-db'
+# CELERY_CACHE_BACKEND = 'django-cache'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
