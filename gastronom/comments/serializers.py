@@ -10,13 +10,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['username']
 
 
-class FilterReviewListSerializer(serializers.ListSerializer):
-
-    def to_representation(self, data):
-        data = data.filter(reply_to=None)
-        return super().to_representation(data)
-
-
 class RecursiveSerializer(serializers.Serializer):
 
     def to_representation(self, value):
@@ -25,10 +18,11 @@ class RecursiveSerializer(serializers.Serializer):
 
 
 class ReviewImageSerializer(serializers.ModelSerializer):
-
+    
     class Meta:
         model = ReviewImage
-        fields = ['review_photo', 'review']
+        fields = ['review_photo', 'raw_photo','review']
+        read_only_fields = ['review_photo']
 
 
 class ReviewRatingSerializer(serializers.ModelSerializer):
@@ -43,6 +37,6 @@ class ReviewSerializer(serializers.ModelSerializer):
     child = RecursiveSerializer(many=True, read_only=True)
 
     class Meta:
-        list_serializer_class = FilterReviewListSerializer
+        # list_serializer_class = FilterReviewListSerializer
         model = Review
         fields = ['user', 'product', 'text', 'created', 'child']

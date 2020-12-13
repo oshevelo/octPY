@@ -1,13 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
+
 from gastronom.settings import REVIEW_IMAGE_SIZE
 from product.models import Product
+
 from PIL import Image
+from io import BytesIO
 # Create your models here.
 
 
 def review_photo_path(instance, filename):
-    review_photo_name = f'review_{instance.review.id}/{instance.review_photo}'  # make a folder for images in reviews
+    review_photo_name = f'review_{instance.review.id}/{instance.raw_photo}'  # make a folder for images in reviews
     return review_photo_name
 
 
@@ -29,20 +33,32 @@ class Review(models.Model):
 class ReviewImage(models.Model):
     review_photo = models.ImageField(upload_to=review_photo_path, null=True, blank=True)
     review = models.ForeignKey(Review, on_delete=models.CASCADE)
+    raw_photo = models.ImageField(upload_to=review_photo_path, null=True, blank=True)
 
     def __str__(self):
         return f'Image for {self.review}'
 
-    def save(self, *args, **kwargs): 
-        '''
-        Saving the picture in a scale for easy display in reviews 300x300
-        '''
-        super().save(*args, **kwargs)
+    def save(self, **kwargs):
 
-        if self.review_photo:
-            img = Image.open(self.review_photo.path)
-            img.thumbnail(REVIEW_IMAGE_SIZE, Image.LANCZOS)
-            img.save(self.review_photo.path)
+        if not self.review_photo:
+            self.review_photo.save(
+                **self.resizeImg(REVIEW_IMAGE_SIZE)
+            )
+            
+        super().save(**kwargs)
+
+    def resizeImg(self, img_size):
+        img: Image.Image = Image.open(self.raw_photo)
+        img.thumbnail(img_size, Image.ANTIALIAS)
+
+        outputIO = BytesIO()
+        img.save(outputIO, format=img.format, quality=100)
+
+        return {
+            'name': '_thumb',
+            'content': ContentFile(outputIO.getvalue()),
+            'save': False,
+        }
 
 
 class ReviewRating(models.Model):
