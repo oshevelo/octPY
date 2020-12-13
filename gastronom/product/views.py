@@ -24,7 +24,7 @@ class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
         return get_object_or_404(Product, pk=self.kwargs.get('product_id'))
                                 
 
-class ProductMediaList(generics.ListAPIView):
+class ProductMediaList(generics.ListCreateAPIView):
     serializer_class = ProductMediaSerializer
     
     def get_queryset(self):
