@@ -19,10 +19,12 @@ FIRST_NAME, LAST_NAME, EMAIL, BIRTH_DATE, GENDER = range(5)
 gender_dict = {'Жінка': 'Female', 'Чоловік': 'Male', 'Ще визначаюсь': 'Not_specified'}
 
 logger = logging.getLogger(__name__)
-
-request = Request(connect_timeout=0.5, read_timeout=1.0, con_pool_size=8)
-bot = Bot(request=request, token=settings.TOKEN, base_url=settings.PROXY_URL)
-
+try:
+    request = Request(connect_timeout=0.5, read_timeout=1.0, con_pool_size=8)
+    bot = Bot(request=request, token=settings.TOKEN, base_url=settings.PROXY_URL)
+except:
+    request = None
+    bot = None
 
 def do_start(update, context):
     """

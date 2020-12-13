@@ -192,15 +192,22 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'console'
         },
-        'file': {
+        'common-file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'formatter': 'file',
             'filename': 'gastronom/debug.log',
+        },
+        'notifications-file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'formatter': 'file',
+            'filename': 'gastronom/notifications.log',
         }
     },
     'loggers': {
-        'notifications': {'level': 'INFO', 'handlers': ['console', 'file']},
+        'django': {'level': 'INFO', 'handlers': ['console', 'common-file']},
+        'notifications': {'level': 'INFO', 'handlers': ['console', 'common-file', 'notifications-file']},
     }
 }
 

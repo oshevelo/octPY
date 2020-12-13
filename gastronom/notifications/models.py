@@ -42,8 +42,12 @@ class Notification(models.Model):
         ordering = ("-timestamp",)
 
     def __str__(self):
+        logger.error(' is __str ')
         return f"{self.is_sent} {self.sent_time} {self.source} {self.recipient} {self.subject} {self.message} {self.timestamp} {self.send_method}"
 
+    def save(self):
+        logger.error(' is save ')
+        super().save()
 
 class TelegramUser(models.Model):
     chat_id = models.PositiveIntegerField(verbose_name='User ID', unique=True)
