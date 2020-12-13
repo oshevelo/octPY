@@ -13,7 +13,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         message = input('Type notification message: ')
         send_method = input('Specify send method: ')
         subject = input('Type notification subject: ')
-        Notification.create_notifications(source=source, recipient=[User.objects.get(id=user_profile.user.id) for user_profile in queryset],
+        Notification.create_notifications(source=source, recipients=[User.objects.get(id=user_profile.user.id) for user_profile in queryset],
                                           message=message,
                                           send_method=send_method,
                                           subject=subject)
