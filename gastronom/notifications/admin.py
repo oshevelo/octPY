@@ -9,7 +9,7 @@ from telegram import Bot
 from telegram.utils.request import Request
 from telegram.error import InvalidToken
 
-from super_inlines.admin import SuperInlineModelAdmin, SuperModelAdmin
+# from super_inlines.admin import SuperInlineModelAdmin, SuperModelAdmin
 
 from gastronom.settings import CHAT_ID
 from notifications.models import Notification, TelegramUser, TelegramIncomeMessage, TelegramReplyMessage
@@ -60,7 +60,7 @@ def send_reply(TelegramReplyMessageInlineAdmin, request, queryset):
         bot.send_message(reply_to_message_id=income_message_id, chat_id=chat_id, text=text)
 
 
-class TelegramReplyMessageInlineAdmin(admin.StackedInline, SuperInlineModelAdmin):
+class TelegramReplyMessageInlineAdmin(admin.StackedInline): #SuperInlineModelAdmin):
     model = TelegramReplyMessage
     list_display = ('id', 'reply_message', 'reply_to_message')
     extra = 1
@@ -78,7 +78,7 @@ class TelegramReplyMessageAdmin(admin.ModelAdmin):
     extra = 1
 
 
-class TelegramIncomeMessageInlineAdmin(admin.StackedInline, SuperInlineModelAdmin):
+class TelegramIncomeMessageInlineAdmin(admin.StackedInline): # SuperInlineModelAdmin):
     model = TelegramIncomeMessage
     extra = 1
     list_display = ('telegramuser', 'id', 'date', 'message_id', 'chat_id', 'text')
