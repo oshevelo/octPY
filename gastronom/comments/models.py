@@ -43,7 +43,7 @@ class ReviewImage(models.Model):
         self.review_photo.save(
             **self.resizeImg(REVIEW_IMAGE_SIZE)
         )
-            
+
         super().save(**kwargs)
 
     def resizeImg(self, img_size):
@@ -64,4 +64,3 @@ class ReviewRating(models.Model):
     review_reting = models.ManyToManyField(Review, related_name='review_rating', blank=True)
     negative_rating = models.IntegerField(default=0, blank=True)
     positive_rating = models.IntegerField(default=0, blank=True)
-
