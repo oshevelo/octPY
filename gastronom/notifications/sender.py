@@ -1,44 +1,28 @@
 import logging
-from datetime import datetime
-from celery import app
 
 from django.core.mail import send_mail
-from django.conf import settings
-
-from telegram import Bot
-from telegram.utils.request import Request
 
 from gastronom.settings import EMAIL_HOST_USER
 from user_profile.models import UserProfile
+from notifications.models import TelegramIncomeMessage
+from notifications.bot import bot
 
 
 logger = logging.getLogger(__name__)
 
 
-@app.shared_task
-def send_email(n):
-    send_mail(subject=n.subject, message=n.message, from_email=EMAIL_HOST_USER, recipient_list=[n.recipient.email])
-    n.sent_time = datetime.now()
-    n.is_sent = True
-    n.save()
+def send_email(x):
+    send_mail(subject=x.subject, message=x.message, from_email=EMAIL_HOST_USER, recipient_list=[UserProfile.objects.get(user=x.recipient).email])
 
 
-@app.shared_task
-def send_telegram(n):
-    recipient = UserProfile.objects.get(user=n.recipient)
-    telegram_id = recipient.telegram_id
-    request = Request(connect_timeout=1, read_timeout=1.0, con_pool_size=8)
-    bot = Bot(request=request, token=settings.TOKEN, base_url=settings.PROXY_URL)
-    bot.send_message(telegram_id, n.message)
-    n.sent_time = datetime.now()
-    n.is_sent = True
-    n.save()
+def send_telegram(x):
+    telegram_id = (UserProfile.objects.get(user=x.recipient)).telegram_id
+    bot.send_message(telegram_id, x.message)
 
 
-send_methods = {
-    'email': send_email,
-    'telegram': send_telegram,
-    # 'viber': send_viber,
-    # 'sms': send_sms,
-    # 'site': send_site
-}
+def send_telegram_reply(x):
+    income_message = TelegramIncomeMessage.objects.get(id=x.reply_to_message.id)
+    income_message_id = income_message.message_id
+    chat_id = income_message.chat_id
+    text = x.reply_message
+    bot.send_message(reply_to_message_id=income_message_id, chat_id=chat_id, text=text)

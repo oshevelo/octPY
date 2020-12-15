@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'comments.apps.CommentsConfig',
     'notifications',
     'catalog',
-    #'super_inlines',
+    # 'super_inlines',
+    'django_celery_results',
     'product.apps.ProductConfig',
     'cart',
     'django.contrib.admin',
@@ -49,6 +50,19 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'discount',
 ]
+
+# celery setting.
+CELERY_CACHE_BACKEND = 'default'
+
+# django setting.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    }
+}
+CELERY_RESULT_BACKEND = 'django-db'
+# CELERY_CACHE_BACKEND = 'django-cache'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -178,15 +192,22 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'console'
         },
-        'file': {
+        'common-file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'formatter': 'file',
             'filename': 'gastronom/debug.log',
+        },
+        'notifications-file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'formatter': 'file',
+            'filename': 'gastronom/notifications.log',
         }
     },
     'loggers': {
-        'notifications': {'level': 'INFO', 'handlers': ['console', 'file']},
+        'django': {'level': 'INFO', 'handlers': ['console', 'common-file']},
+        'notifications': {'level': 'INFO', 'handlers': ['console', 'common-file', 'notifications-file']},
     }
 }
 

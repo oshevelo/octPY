@@ -33,19 +33,24 @@ class Product(models.Model):
 class ProductMedia(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='mediafiles')
     original_image = models.ImageField(upload_to='products/%Y/%m/%d/original/', null=True)
-    thumbnail_image = models.ImageField(upload_to='products/%Y/%m/%d/thumbnails/', null=True, editable=False)
+    thumbnail_image = models.ImageField(upload_to='products/%Y/%m/%d/thumbnail/', null=True, editable=False)
+    medium_image = models.ImageField(upload_to='products/%Y/%m/%d/medium/', null=True, editable=False)
+    medium_large_image = models.ImageField(upload_to='products/%Y/%m/%d/medium_large/', null=True, editable=False)
+    large_image = models.ImageField(upload_to='products/%Y/%m/%d/large/', null=True, editable=False)
 
 
     def save(self):
-        for sizes in PRODUCT_IMAGE_SIZE.values():
+        image_sizes=PRODUCT_IMAGE_SIZE
 
-            if not self.make_thumbnail(sizes):
+        self.make_thumbnail(sizes=image_sizes['thumbnail'], dest_field=self.thumbnail_image)
+        self.make_thumbnail(sizes=image_sizes['medium'], dest_field=self.medium_image)
+        self.make_thumbnail(sizes=image_sizes['medium_large'], dest_field=self.medium_large_image)
+        self.make_thumbnail(sizes=image_sizes['large'], dest_field=self.large_image)
 
-                raise Exception('Could not create thumbnail - is the file type valid?')
         
         super(ProductMedia, self).save()
 
-    def make_thumbnail(self, sizes):
+    def make_thumbnail(self, sizes, dest_field):
         image = Image.open(self.original_image)
 
         if image.height > sizes[0] or image.width > sizes[1]:
@@ -64,7 +69,7 @@ class ProductMedia(models.Model):
             elif thumb_extension == '.png':
                 FTYPE = 'PNG'
             else:
-                return False    # Unrecognized file type
+                raise Exception('Could not create thumbnail - is the file type valid?')    # Unrecognized file type
 
             # Save thumbnail to in-memory file as StringIO
             temp_thumb = BytesIO()
@@ -72,7 +77,7 @@ class ProductMedia(models.Model):
             temp_thumb.seek(0)
 
             # set save=False, otherwise it will run in an infinite loop
-            self.thumbnail_image.save(thumb_filename, ContentFile(temp_thumb.read()), save=False)
+            dest_field.save(thumb_filename, ContentFile(temp_thumb.read()), save=False)
             temp_thumb.close()
 
         return True

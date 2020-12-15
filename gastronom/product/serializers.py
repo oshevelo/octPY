@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from product.models import Product, ProductMedia, Characteristic
+from catalog.serializers import CatalogDetailedSerializer
 
 
 class ProductNestedSerializer(serializers.ModelSerializer):
@@ -14,7 +15,7 @@ class ProductMediaNestedSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ProductMedia
-        fields = ['id', 'original_image', 'thumbnail_image']
+        fields = ['id', 'medium_image']
 
 
 class CharacteristicNestedSerializer(serializers.ModelSerializer):
@@ -25,14 +26,13 @@ class CharacteristicNestedSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    media = ProductMediaNestedSerializer(many=True, read_only=True)
+    image = ProductMediaNestedSerializer(many=True, read_only=True)
     characteristics = CharacteristicNestedSerializer(many=True, read_only=True)
-    # url = serializers.HyperlinkedIdentityField(view_name='products-detail')
     
     
     class Meta:
         model = Product
-        fields = ['id', 'name', 'sku', 'descriptions', 'raiting', 'count', 'price', 'available', 'characteristics', 'media']
+        fields = ['id', 'name', 'image', 'sku', 'descriptions', 'categories', 'raiting', 'count', 'price', 'available', 'characteristics']
         
 
 class ProductMediaSerializer(serializers.ModelSerializer):
@@ -40,7 +40,7 @@ class ProductMediaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductMedia
-        fields = ['id', 'original_image', 'thumbnail_image', 'product']
+        fields = '__all__'
         
 
 class CharacteristicSerializer(serializers.ModelSerializer):

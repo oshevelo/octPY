@@ -40,15 +40,14 @@ class ReviewImage(models.Model):
 
     def save(self, **kwargs):
 
-        if not self.review_photo:
-            self.review_photo.save(
-                **self.resizeImg(REVIEW_IMAGE_SIZE)
-            )
+        self.review_photo.save(
+            **self.resizeImg(REVIEW_IMAGE_SIZE)
+        )
             
         super().save(**kwargs)
 
     def resizeImg(self, img_size):
-        img: Image.Image = Image.open(self.raw_photo)
+        img = Image.open(self.raw_photo)
         img.thumbnail(img_size, Image.ANTIALIAS)
 
         outputIO = BytesIO()
