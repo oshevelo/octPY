@@ -6,5 +6,6 @@ class Payment(models.Model):
     payment_system = models.CharField('payment_system', max_length=100, primary_key=False, null=False)
     total_amount = models.IntegerField('total_amount', primary_key=False, null=False)
 
+
 def __str__(self):
     return self.payment_id
