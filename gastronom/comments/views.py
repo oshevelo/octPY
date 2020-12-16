@@ -5,7 +5,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from .models import Review, ReviewImage, ReviewRating
-from notifications.models import Notification
+from notifications.views import create_notifications
 from comments.serializers import ReviewSerializer, ReviewImageSerializer, ReviewRatingSerializer
 
 # Create your views here.
@@ -19,6 +19,14 @@ class ReviewListCreate(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+        reply = serializer.data['reply_to']
+    
+        if reply:
+            user_obj = Review.objects.select_related('user').filter(id=reply)
+            print(user_obj)
+            # pamagite!
+            # create_notifications(source='comments.apps.CommentsConfig', recipients=reply_to, send_method='email', subject='You have answer')
+
 
 
 class ReviewRetrieve(generics.RetrieveUpdateAPIView):
