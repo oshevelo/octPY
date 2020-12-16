@@ -12,3 +12,4 @@ urlpatterns = [
     path('unsent/', views.NotificationsUnsent().as_view(),
          name='notifications_unsent_by_recipient_nested'),
 ]
+

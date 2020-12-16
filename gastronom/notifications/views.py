@@ -7,9 +7,11 @@ from rest_framework import generics
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
 
+from gastronom.settings import USE_QUEUE
 from notifications.models import Notification
 from notifications.serializers import NotificationSerializer, NotificationNestedSerializer
 from notifications.tasks import send_methods
+
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +84,9 @@ Notification.create_notifications('notifications', recipients=[user for user in 
         for user in recipients:
             n = Notification(source=source, recipient=user, subject=subject, message=message, send_method=send_method)
             n.save()
-            send_func.delay(n.id)
+            if USE_QUEUE:
+                send_func.delay(n.id)
+            else:
+                send_func(n.id)
     else:
         logger.error('Invalid send method passed to the create_notifications')
