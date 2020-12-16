@@ -3,7 +3,7 @@ from django.http import Http404
 from catalog.models import Catalog
 
 from rest_framework import generics
-from catalog.serializers import CatalogSerializer, CatalogDetailedSerializer
+from catalog.serializers import CatalogSerializer, CatalogDetailedSerializer, Chartacslz
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 
@@ -20,3 +20,8 @@ class CatalogDetail(generics.RetrieveUpdateDestroyAPIView):
         return get_object_or_404(Catalog, pk=self.kwargs.get('catalog_id'))
 
 
+class Chartacview(generics.ListAPIView):
+    serializer_class = Chartacslz
+
+    def get_queryset(self):
+        return Catalog.objects.exclude(parent__isnull=False)
