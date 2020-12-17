@@ -58,7 +58,7 @@ INSTALLED_APPS = [
 CELERY_CACHE_BACKEND = 'default'
 # CELERY_CACHE_BACKEND = 'django-cache' - what that means and where that cache physically is
 CELERY_RESULT_BACKEND = 'django-db'
-USE_QUEUE = False
+USE_QUEUE = True
 
 
 # django setting.
