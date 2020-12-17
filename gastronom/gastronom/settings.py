@@ -58,7 +58,7 @@ INSTALLED_APPS = [
 CELERY_CACHE_BACKEND = 'default'
 # CELERY_CACHE_BACKEND = 'django-cache' - what that means and where that cache physically is
 CELERY_RESULT_BACKEND = 'django-db'
-USE_QUEUE = True
+USE_QUEUE = False
 
 
 # django setting.
@@ -168,6 +168,7 @@ PRODUCT_IMAGE_SIZE = {
     'medium_large': (768, 768),
     'large': (1024, 1024)
 }
+REVIEW_IMAGE_SIZE = 300, 300  # for small image size in review
 
 # e-mail settings
 EMAIL_HOST = 'smtp.gmail.com'
@@ -236,4 +237,4 @@ sentry_sdk.init(
 
 from .local_settings import *
 
-REVIEW_IMAGE_SIZE = 300, 300  # for small image size in review
+

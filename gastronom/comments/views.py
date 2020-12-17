@@ -22,10 +22,8 @@ class ReviewListCreate(generics.ListCreateAPIView):
         reply = serializer.data['reply_to']
     
         if reply:
-            user_obj = Review.objects.select_related('user').filter(id=reply)
-            print(user_obj)
-            # pamagite!
-            # create_notifications(source='comments.apps.CommentsConfig', recipients=reply_to, send_method='email', subject='You have answer')
+            review_obj = Review.objects.get(id=reply)
+            create_notifications(source='comments.apps.CommentsConfig', recipients=[review_obj.user], send_method='email', subject='Gastronom review', message='You have answer on your review')
 
 
 
