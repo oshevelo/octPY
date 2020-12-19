@@ -21,9 +21,9 @@ class RecursiveField(serializers.Serializer):
         return serializer.data
 
 
-class Chartacslz(serializers.ModelSerializer):
-    childern = RecursiveField(many=True, allow_null=True)
+class CatalogTreeSr(serializers.ModelSerializer):
+    children = RecursiveField(many=True, allow_null=True)
 
     class Meta():
         model = Catalog
-        fields = '__all__'
+        fields = ['name', 'description', 'index', 'children']
