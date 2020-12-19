@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from rest_framework import generics
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 
 from gastronom.settings import USE_QUEUE
 from notifications.models import Notification
@@ -43,6 +44,7 @@ class NotificationsByUserNested(generics.RetrieveUpdateDestroyAPIView):
     """
     serializer_class = NotificationNestedSerializer
     pagination_class = LimitOffsetPagination
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return get_object_or_404(User, pk=self.kwargs.get('recipient_id'))
@@ -56,7 +58,7 @@ class NotificationsUnsent(generics.ListCreateAPIView):
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
-        lst = get_list_or_404(Notification, sent=False)
+        lst = get_list_or_404(Notification, is_sent=False)
         return lst
 
 
