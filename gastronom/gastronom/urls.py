@@ -31,5 +31,6 @@ urlpatterns = [
     path('product/', include('product.urls')),
     path('comments/', include('comments.urls')),
     path('cart/', include('cart.urls')),
-    # path('sentry-debug/', trigger_error),
+    path('info/', include('info.urls')),
+    path('tinymce/', include('tinymce.urls')),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)

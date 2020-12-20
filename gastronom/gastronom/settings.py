@@ -52,6 +52,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'discount',
+    'cart',
+    'tinymce',
+    'info',
 ]
 
 # celery setting.
