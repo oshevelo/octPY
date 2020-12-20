@@ -18,6 +18,10 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from gastronom.settings import MEDIA_URL, MEDIA_ROOT
 
+
+# def trigger_error(request):
+#     division_by_zero = 1 / 0
+
 urlpatterns = [
     path('jet/', include('jet.urls', 'jet')),
     path('admin/', admin.site.urls),
@@ -27,4 +31,5 @@ urlpatterns = [
     path('product/', include('product.urls')),
     path('comments/', include('comments.urls')),
     path('cart/', include('cart.urls')),
+    # path('sentry-debug/', trigger_error),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
