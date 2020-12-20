@@ -86,7 +86,7 @@ def do_echo(update, context):
 
     if chat_id == CHAT_ID:  # if message came from me
         reply = update.message.reply_to_message  # to which message this my reply
-        t = TelegramReplyMessage(reply_to_message=TelegramIncomeMessage.objects.get(text=reply.text), reply_message=text).save()
+        t = TelegramReplyMessage(reply_to_message=list(TelegramIncomeMessage.objects.filter(text=reply.text))[-1], reply_message=text)
         if reply.forward_from is None:
             first_name = reply.forward_sender_name.split(' ')[0]
             last_name = reply.forward_sender_name.split(' ')[1]

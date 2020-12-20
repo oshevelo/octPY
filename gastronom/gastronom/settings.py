@@ -87,8 +87,8 @@ ROOT_URLCONF = 'gastronom.urls'
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated',],
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    # 'PAGE_SIZE': 50
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100
 }
 
 TEMPLATES = [
@@ -173,6 +173,8 @@ PRODUCT_IMAGE_SIZE = {
 }
 REVIEW_IMAGE_SIZE = 300, 300  # for small image size in review
 
+REVIEW_IMAGE_SIZE = 300, 300  # for small image size in review
+
 # e-mail settings
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = ''
@@ -196,35 +198,35 @@ LOGGING = {
         'console': {'level': 'INFO', 'class': 'logging.StreamHandler', 'formatter': 'console'},
         'common-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/common.log'},
         'notifications-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/notifications.log'},
-        'activities-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/activities.log'},
-        'analytics-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/analytics.log'},
+        # 'activities-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/activities.log'},
+        # 'analytics-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/analytics.log'},
         'cart-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/cart.log'},
         'catalog-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/catalog.log'},
         'comments-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/comments.log'},
         'discount-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/discount.log'},
-        'info-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/info.log'},
-        'loyalty-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/loyalty.log'},
-        'order-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/order.log'},
+        # 'info-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/info.log'},
+        # 'loyalty-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/loyalty.log'},
+        # 'order-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/order.log'},
         'payment-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/payment.log'},
         'product-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/product.log'},
-        'shipment-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/shipment.log'},
+        # 'shipment-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/shipment.log'},
         'user_profile-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/user_profile.log'}
     },
     'loggers': {
         'django': {'level': 'INFO', 'handlers': ['console', 'common-file']},
-        'activities': {'level': 'INFO', 'handlers': ['console', 'common-file', 'activities-file']},
-        'analytics': {'level': 'INFO', 'handlers': ['console', 'common-file', 'analytics-file']},
+        # 'activities': {'level': 'INFO', 'handlers': ['console', 'common-file', 'activities-file']},
+        # 'analytics': {'level': 'INFO', 'handlers': ['console', 'common-file', 'analytics-file']},
         'cart': {'level': 'INFO', 'handlers': ['console', 'common-file', 'cart-file']},
         'catalog': {'level': 'INFO', 'handlers': ['console', 'common-file', 'catalog-file']},
         'comments': {'level': 'INFO', 'handlers': ['console', 'common-file', 'comments-file']},
         'discount': {'level': 'INFO', 'handlers': ['console', 'common-file', 'discount-file']},
-        'info': {'level': 'INFO', 'handlers': ['console', 'common-file', 'info-file']},
-        'loyalty': {'level': 'INFO', 'handlers': ['console', 'common-file', 'loyalty-file']},
+        # 'info': {'level': 'INFO', 'handlers': ['console', 'common-file', 'info-file']},
+        # 'loyalty': {'level': 'INFO', 'handlers': ['console', 'common-file', 'loyalty-file']},
         'notifications': {'level': 'INFO', 'handlers': ['console', 'common-file', 'notifications-file']},
-        'order': {'level': 'INFO', 'handlers': ['console', 'common-file', 'order-file']},
+        # 'order': {'level': 'INFO', 'handlers': ['console', 'common-file', 'order-file']},
         'payment': {'level': 'INFO', 'handlers': ['console', 'common-file', 'payment-file']},
         'product': {'level': 'INFO', 'handlers': ['console', 'common-file', 'product-file']},
-        'shipment': {'level': 'INFO', 'handlers': ['console', 'common-file', 'shipment-file']},
+        # 'shipment': {'level': 'INFO', 'handlers': ['console', 'common-file', 'shipment-file']},
         'user_profile': {'level': 'INFO', 'handlers': ['console', 'common-file', 'user_profile-file']},
     }
 }
@@ -239,5 +241,3 @@ sentry_sdk.init(
 )
 
 from .local_settings import *
-
-
