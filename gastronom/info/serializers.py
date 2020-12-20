@@ -7,7 +7,7 @@ class InfoPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InfoPost
-        fields = ['title', 'content']
+        fields = ['title', 'content', 'index']
 
 
 class InfoPostDetailSerializer(serializers.ModelSerializer):
