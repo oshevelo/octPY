@@ -1,3 +1,5 @@
+import logging
+
 from django.shortcuts import get_list_or_404
 from django.contrib.auth.models import User
 
@@ -5,8 +7,13 @@ from rest_framework import generics
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
 
+from gastronom.settings import USE_QUEUE
 from notifications.models import Notification
 from notifications.serializers import NotificationSerializer, NotificationNestedSerializer
+from notifications.tasks import send_methods
+
+
+logger = logging.getLogger(__name__)
 
 
 class NotificationListCreate(generics.ListCreateAPIView):
@@ -51,3 +58,35 @@ class NotificationsUnsent(generics.ListCreateAPIView):
     def get_queryset(self):
         lst = get_list_or_404(Notification, sent=False)
         return lst
+
+
+def create_notifications(source, recipients, message, send_method='email', subject='GASTRONOM info'):
+    """
+    Create and save notification objects to database
+    :param source: str, name of app making notification
+    :param recipients: list of class User objects
+    :param subject: str, subject of notification
+    :param message: str, body of notification message
+    :param send_method: str, name of send method
+    Examples:
+from django.contrib.auth.models import User
+from notifications.models import Notification
+from user_profile.models import UserProfile
+    email to list of Users:
+Notification.create_notifications('notifications', recipients=[User.objects.get(id=1), User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
+    telegram to list of Users:
+Notification.create_notifications('notifications', recipients=[User.objects.get(id=1), User.objects.get(id=4)], message='This is my 100500th e-mail notification from Django.gastronom', send_method='email', subject='My 100500 message')
+    telegram to all Users:
+Notification.create_notifications('notifications', recipients=[user for user in User.objects.all()], message='Це моя перша телеграма from Django.gastronom', send_method='telegram')
+    """
+    if send_method in send_methods:
+        send_func = send_methods[send_method]
+        for user in recipients:
+            n = Notification(source=source, recipient=user, subject=subject, message=message, send_method=send_method)
+            n.save()
+            if USE_QUEUE:
+                send_func.delay(n.id)
+            else:
+                send_func(n.id)
+    else:
+        logger.error('Invalid send method passed to the create_notifications')
