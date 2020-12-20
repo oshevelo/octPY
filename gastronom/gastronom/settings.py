@@ -52,6 +52,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'discount',
+    'cart',
+    'tinymce',
+    'info',
 ]
 
 # celery setting.
@@ -82,6 +85,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'gastronom.urls'
 
 REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated',],
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100
@@ -167,6 +171,7 @@ PRODUCT_IMAGE_SIZE = {
     'medium_large': (768, 768),
     'large': (1024, 1024)
 }
+REVIEW_IMAGE_SIZE = 300, 300  # for small image size in review
 
 REVIEW_IMAGE_SIZE = 300, 300  # for small image size in review
 
@@ -234,6 +239,5 @@ sentry_sdk.init(
     # django.contrib.auth) you may enable sending PII data.
     send_default_pii=True
 )
-
 
 from .local_settings import *

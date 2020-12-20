@@ -1,3 +1,11 @@
 from django.db import models
+from tinymce.models import HTMLField
 
-# Create your models here.
+
+class InfoPost(models.Model):
+    title = models.CharField(max_length=100)
+    content = HTMLField()
+    index = models.IntegerField(default=1)
+
+    def __str__(self):
+        return self.title
