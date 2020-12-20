@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     # 'super_inlines',
     'django_celery_results',
     'product.apps.ProductConfig',
-    'cart',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
