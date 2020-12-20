@@ -168,6 +168,7 @@ PRODUCT_IMAGE_SIZE = {
     'medium_large': (768, 768),
     'large': (1024, 1024)
 }
+REVIEW_IMAGE_SIZE = 300, 300  # for small image size in review
 
 # e-mail settings
 EMAIL_HOST = 'smtp.gmail.com'
@@ -236,4 +237,4 @@ sentry_sdk.init(
 
 from .local_settings import *
 
-REVIEW_IMAGE_SIZE = 300, 300  # for small image size in review
+
