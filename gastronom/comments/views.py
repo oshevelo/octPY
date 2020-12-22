@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .permissions import IsOwnerOrReadOnly
 
 from .models import Review, ReviewImage, ReviewRating
@@ -14,7 +14,7 @@ from comments.serializers import ReviewSerializer, ReviewImageSerializer, Review
 
 class ReviewListCreate(generics.ListCreateAPIView):
     pagination_class = LimitOffsetPagination
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Review.objects.filter(reply_to=None).order_by('-created')
     serializer_class = ReviewSerializer
 
@@ -37,21 +37,21 @@ class ReviewRetrieve(generics.RetrieveUpdateAPIView):
 
 class ReviewImageListCreate(generics.ListCreateAPIView):
     pagination_class = LimitOffsetPagination
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = ReviewImage.objects.all()
     serializer_class = ReviewImageSerializer
 
 
 class ReviewImageRetrieve(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ReviewImageSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    # permission_classes = [IsOwnerOrReadOnly]
 
     def get_object(self):
         return get_object_or_404(ReviewImage, pk=self.kwargs.get('review_id'))
 
 
 class ReviewRatingListCreate(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = LimitOffsetPagination
     queryset = ReviewRating.objects.all()
     serializer_class = ReviewRatingSerializer
