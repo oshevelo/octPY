@@ -1,6 +1,7 @@
 import logging
 
 from django.core.mail import send_mail
+from django.contrib.auth.models import User
 
 from gastronom.settings import EMAIL_HOST_USER
 from user_profile.models import UserProfile
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def send_email(x):
-    send_mail(subject=x.subject, message=x.message, from_email=EMAIL_HOST_USER, recipient_list=[UserProfile.objects.get(user=x.recipient).email])
+    send_mail(subject=x.subject, message=x.message, from_email=EMAIL_HOST_USER, recipient_list=[User.objects.get(id=x.recipient_id).email])
 
 
 def send_telegram(x):
