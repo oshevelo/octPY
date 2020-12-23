@@ -58,7 +58,6 @@ INSTALLED_APPS = [
 
 # celery setting.
 CELERY_CACHE_BACKEND = 'default'
-# CELERY_CACHE_BACKEND = 'django-cache' - what that means and where that cache physically is
 CELERY_RESULT_BACKEND = 'django-db'
 USE_QUEUE = True
 
@@ -87,7 +86,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated',],
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 100,
 }
 
 TEMPLATES = [
@@ -170,8 +169,6 @@ PRODUCT_IMAGE_SIZE = {
     'medium_large': (768, 768),
     'large': (1024, 1024)
 }
-REVIEW_IMAGE_SIZE = 300, 300  # for small image size in review
-
 REVIEW_IMAGE_SIZE = 300, 300  # for small image size in review
 
 # e-mail settings
