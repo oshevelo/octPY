@@ -18,5 +18,9 @@ class ReviewAdmin(admin.ModelAdmin):
     search_fields = ['user', 'text', 'product']
 
 
+class ReviewImageAdmin(admin.ModelAdmin):
+    list_display = ['id', 'raw_photo', 'review', 'review_photo']
+
+
 admin.site.register(Review, ReviewAdmin)
-admin.site.register(ReviewImage)
+admin.site.register(ReviewImage, ReviewImageAdmin)
