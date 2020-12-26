@@ -44,7 +44,6 @@ def send_reply(TelegramReplyMessageInlineAdmin, request, queryset):
             send_telegram_reply_task(reply_message.id)
 
 
-
 class TelegramReplyMessageInlineAdmin(admin.StackedInline): #SuperInlineModelAdmin):
     model = TelegramReplyMessage
     list_display = ('id', 'reply_message', 'reply_to_message')
@@ -61,7 +60,6 @@ class TelegramReplyMessageAdmin(admin.ModelAdmin):
     list_display = ('id', 'is_sent', 'sent_time', 'reply_message', 'reply_to_message')
     actions = [send_reply]
     extra = 1
-
 
 
 class TelegramIncomeMessageInlineAdmin(admin.StackedInline): # SuperInlineModelAdmin):

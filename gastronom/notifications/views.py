@@ -87,11 +87,11 @@ Notification.create_notifications('notifications', recipients=[user for user in 
     if send_method in send_methods:
         send_func = send_methods[send_method]
         for user in recipients:
-            n = Notification(source=source, recipient=user, subject=subject, message=message, send_method=send_method)
-            n.save()
+            notification = Notification(source=source, recipient=user, subject=subject, message=message, send_method=send_method)
+            notification.save()
             if USE_QUEUE:
-                send_func.delay(n.id)
+                send_func.delay(notification.id)
             else:
-                send_func(n.id)
+                send_func(notification.id)
     else:
         logger.error('Invalid send method passed to the create_notifications')
