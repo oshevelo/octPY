@@ -20,6 +20,10 @@ from gastronom.settings import MEDIA_URL, MEDIA_ROOT
 from django.contrib.auth import views as auth_views
 from django.views.generic.base import TemplateView
 
+
+# def trigger_error(request):
+#     division_by_zero = 1 / 0
+
 urlpatterns = [
     path('jet/', include('jet.urls', 'jet')),
     path('admin/', admin.site.urls),
@@ -32,4 +36,7 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
     path('login/', auth_views.LoginView.as_view(redirect_field_name='/catalog/catalog/'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(redirect_field_name='/catalog/catalog/'), name='logout'),
+    path('info/', include('info.urls')),
+    path('tinymce/', include('tinymce.urls')),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
+

@@ -18,10 +18,13 @@ def send_email_task(n):
 @app.task
 def send_telegram_task(n):
     x = Notification.objects.get(id=n)
-    send_telegram(x)
-    x.sent_time = datetime.now()
-    x.is_sent = True
-    x.save()
+    try:
+        send_telegram(x)
+        x.sent_time = datetime.now()
+        x.is_sent = True
+        x.save()
+    except Exception as e:
+        send_email_task(n)
 
 
 @app.task

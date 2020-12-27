@@ -18,10 +18,10 @@ class RecursiveSerializer(serializers.Serializer):
 
 
 class ReviewImageSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = ReviewImage
-        fields = ['review_photo', 'raw_photo','review']
+        fields = ['review_photo', 'raw_photo', 'review']
         read_only_fields = ['review_photo']
 
 
@@ -37,6 +37,6 @@ class ReviewSerializer(serializers.ModelSerializer):
     child = RecursiveSerializer(many=True, read_only=True)
 
     class Meta:
-        # list_serializer_class = FilterReviewListSerializer
+    
         model = Review
-        fields = ['user', 'product', 'text', 'created', 'child']
+        fields = ['user', 'product', 'text', 'created', 'child', 'reply_to']
