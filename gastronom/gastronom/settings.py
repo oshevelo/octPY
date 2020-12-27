@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'discount',
+    'gastronom',
     'cart',
     'tinymce',
     'info',
@@ -75,7 +76,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.midd>>>>>>> mainleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -223,10 +224,18 @@ LOGGING = {
         'payment': {'level': 'INFO', 'handlers': ['console', 'common-file', 'payment-file']},
         'product': {'level': 'INFO', 'handlers': ['console', 'common-file', 'product-file']},
         # 'shipment': {'level': 'INFO', 'handlers': ['console', 'common-file', 'shipment-file']},
-        'user_profile': {'level': 'INFO', 'handlers': ['console', 'common-file', 'user_profile-file']},
+        'user_profile': {'level': 'INFO',<<<<<<< catalog6
+91
+ 
+    'PAGE_SIZE': 50
+92
+ 
+======= 'handlers': ['console', 'common-file', 'user_profile-file']},
     }
 }
 
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 sentry_sdk.init(
     dsn="https://f623636078ed4cc7add578bbb3462672@o490907.ingest.sentry.io/5555592",
     integrations=[DjangoIntegration()],
