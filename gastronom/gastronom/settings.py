@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'discount',
+    'gastronom',
 ]
 
 # celery setting.
@@ -211,6 +212,8 @@ LOGGING = {
     }
 }
 
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 from .local_settings import *
 
