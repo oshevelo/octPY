@@ -18,73 +18,42 @@ class ReviewTestApi(TestCase):
     def setUp(self):
 
         self.superuser = User.objects.create_user(username='repka', email='', is_superuser=True, password=TEST_PASSWORD)
-        self.staff = User.objects.create_user(username='repkastaff', email='', is_staff=True, password=TEST_PASSWORD)
         self.buyer = User.objects.create_user(username='repkabuyer', email='', is_active=True, password=TEST_PASSWORD)
 
         self.superclient = APIClient(username='repka')
         self.superclient.login(username='repka', password=TEST_PASSWORD)
-        self.staffclient = Client(username='repkastaff')
-        self.staffclient.login(username='repkastaff', password=TEST_PASSWORD)
         self.buyerclient = Client()
         self.buyerclient.login()
 
         self.review_super = Review.objects.create(user=self.superuser, text='some text')
-        self.review_staff = Review.objects.create(user=self.staff, text='some text')
         self.review_buyer = Review.objects.create(user=self.buyer, text='some text')
 
     def test_get_review_list_super_with_permission(self):
         response = self.superclient.get('/comments/reviews/')
         self.assertEqual(response.status_code, 200)
-        print(response.json())
-        self.assertEqual(response.json(), {'count': 3, 'next': None, 'previous': None, 
+        self.assertEqual(response.json(), {'count': 2, 'next': None, 'previous': None, 
                                             'results': [
-                                                {'user': {'username': 'repkastaff'}, 
+                                                {'user': {'username': 'repka'}, 
                                                 'product': None, 'text': 'some text', 
                                                 'created': response.data['results'][0]['created'], 
-                                                'child': [], 'reply_to': None}, 
+                                                'child': [], 'reply_to': None},  
                                                 {'user': {'username': 'repkabuyer'}, 
                                                 'product': None, 'text': 'some text', 
                                                 'created': response.data['results'][1]['created'], 
-                                                'child': [], 'reply_to': None}, 
-                                                {'user': {'username': 'repka'}, 
-                                                'product': None, 'text': 'some text', 
-                                                'created': response.data['results'][2]['created'], 
                                                 'child': [], 'reply_to': None}]})
-                                       
-    def test_get_review_list_staff_with_permission(self):
-        response = self.staffclient.get('/comments/reviews/')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {'count': 3, 'next': None, 'previous': None, 
-                                            'results': [
-                                                {'user': {'username': 'repkastaff'}, 
-                                                'product': None, 'text': 'some text', 
-                                                'created': response.data['results'][0]['created'], 
-                                                'child': [], 'reply_to': None}, 
-                                                {'user': {'username': 'repkabuyer'}, 
-                                                'product': None, 'text': 'some text', 
-                                                'created': response.data['results'][1]['created'], 
-                                                'child': [], 'reply_to': None}, 
-                                                {'user': {'username': 'repka'}, 
-                                                'product': None, 'text': 'some text', 
-                                                'created': response.data['results'][2]['created'], 
-                                                'child': [], 'reply_to': None}]})
-''' 
+                                        
     def test_get_review_list_buyer_with_permission(self):
         response = self.buyerclient.get('/comments/reviews/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {'count': 3, 'next': None, 'previous': None, 
+        self.assertEqual(response.json(), {'count': 2, 'next': None, 'previous': None, 
                                             'results': [
-                                                {'user': {'username': 'repkabuyer'}, 
-                                                'product': None, 'text': 'some text', 
-                                                'created': response.data['results'][0]['created'], 
-                                                'child': [], 'reply_to': None}, 
-                                                {'user': {'username': 'repkastaff'}, 
-                                                'product': None, 'text': 'some text', 
-                                                'created': response.data['results'][1]['created'], 
-                                                'child': [], 'reply_to': None}, 
                                                 {'user': {'username': 'repka'}, 
                                                 'product': None, 'text': 'some text', 
-                                                'created': response.data['results'][2]['created'], 
+                                                'created': response.data['results'][0]['created'], 
+                                                'child': [], 'reply_to': None},  
+                                                {'user': {'username': 'repkabuyer'}, 
+                                                'product': None, 'text': 'some text', 
+                                                'created': response.data['results'][1]['created'], 
                                                 'child': [], 'reply_to': None}]})
 
     def test_post_review_list_super_with_permission(self):
@@ -99,8 +68,10 @@ class ReviewTestApi(TestCase):
                                            'text': 'lalala',
                                            'user': {'username': 'repka'}})
 
-    def test_post_review_list_staff_with_permission(self):
-        response = self.staffclient.post('/comments/reviews/', {'product': '',
+    def test_post_review_list_buyer_with_permission(self):
+        self.buyerclient = Client()
+        self.buyerclient.login(username='repkabuyer', password=TEST_PASSWORD)
+        response = self.buyerclient.post('/comments/reviews/', {'product': '',
                                                             'text': 'dadadad',
                                                             'child': []})
         self.assertEqual(response.status_code, 201)
@@ -109,5 +80,5 @@ class ReviewTestApi(TestCase):
                                            'product': None,
                                            'reply_to': None,
                                            'text': 'dadadad',
-                                           'user': {'username': 'repkastaff'}})
-'''
+                                           'user': {'username': 'repkabuyer'}})
+
