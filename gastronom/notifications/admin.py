@@ -1,28 +1,15 @@
 import logging
 
 from django.contrib import admin
-from django.conf import settings
 from django.forms import TextInput, Textarea
 from django.db import models
-
-from telegram import Bot
-from telegram.utils.request import Request
-from telegram.error import InvalidToken
-
 # from super_inlines.admin import SuperInlineModelAdmin, SuperModelAdmin
-
-from gastronom.settings import CHAT_ID
+from gastronom.settings import USE_QUEUE
 from notifications.models import Notification, TelegramUser, TelegramIncomeMessage, TelegramReplyMessage
-from notifications.tasks import send_telegram_task, send_methods, send_telegram_reply_task
+from notifications.tasks import send_methods, send_telegram_reply_task
+
 
 logger = logging.getLogger(__name__)
-
-try:
-    request = Request(connect_timeout=0.5, read_timeout=1.0, con_pool_size=8)
-    bot = Bot(request=request, token=settings.TOKEN, base_url=settings.PROXY_URL)
-except InvalidToken: 
-    request = None
-    bot = None  
 
 
 class NotificationAdmin(admin.ModelAdmin):
@@ -36,12 +23,10 @@ class NotificationAdmin(admin.ModelAdmin):
     def send_notifications(self, request, queryset):
         for notification in queryset:
             send_func = send_methods[notification.send_method]
-            try:
+            if USE_QUEUE:
+                send_func.delay(notification.id)
+            else:
                 send_func(notification.id)
-
-            except Exception as e:
-                logger.info(e)
-                bot.send_message(chat_id=CHAT_ID, text=str(e))
 
     def make_unsent(self, request, queryset):
         for notification in queryset:
@@ -53,10 +38,13 @@ class NotificationAdmin(admin.ModelAdmin):
 
 def send_reply(TelegramReplyMessageInlineAdmin, request, queryset):
     for reply_message in queryset:
-        send_telegram_reply_task.delay(reply_message.id)
+        if USE_QUEUE:
+            send_telegram_reply_task.delay(reply_message.id)
+        else:
+            send_telegram_reply_task(reply_message.id)
 
 
-class TelegramReplyMessageInlineAdmin(admin.StackedInline):  #, SuperInlineModelAdmin):
+class TelegramReplyMessageInlineAdmin(admin.StackedInline): #SuperInlineModelAdmin):
     model = TelegramReplyMessage
     list_display = ('id', 'reply_message', 'reply_to_message')
     extra = 1
@@ -74,7 +62,7 @@ class TelegramReplyMessageAdmin(admin.ModelAdmin):
     extra = 1
 
 
-class TelegramIncomeMessageInlineAdmin(admin.StackedInline):  #, SuperInlineModelAdmin):
+class TelegramIncomeMessageInlineAdmin(admin.StackedInline): # SuperInlineModelAdmin):
     model = TelegramIncomeMessage
     extra = 1
     list_display = ('telegramuser', 'id', 'date', 'message_id', 'chat_id', 'text')

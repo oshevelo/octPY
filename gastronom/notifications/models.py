@@ -2,26 +2,29 @@ import logging
 
 from django.db import models
 from django.contrib.auth.models import User
-
-from telegram.utils.request import Request
-from telegram import Bot
-from telegram.error import InvalidToken
-
-from gastronom.settings import INSTALLED_APPS, TOKEN, PROXY_URL, CHAT_ID
-
-
-try:
-    request = Request(connect_timeout=0.5, read_timeout=1.0, con_pool_size=8)
-    bot = Bot(request=request, token=TOKEN, base_url=PROXY_URL)
-except InvalidToken: 
-    request = None
-    bot = None  
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
 
 class Notification(models.Model):
-    SOURCE = [(x, x) for x in INSTALLED_APPS]
+    SOURCE = (
+        ('activity', 'activity'),
+        ('analytics', 'analytics'),
+        ('cart', 'cart'),
+        ('catalog', 'catalog'),
+        ('comments', 'comments'),
+        ('discount', 'discount'),
+        ('info', 'info'),
+        ('loyalty', 'loyalty'),
+        ('notifications', 'notifications'),
+        ('order', 'order'),
+        ('payment', 'payment'),
+        ('product', 'product'),
+        ('shipment', 'shipment'),
+        ('user_profile', 'user_profile'),
+        ('other_source', 'other_source')
+    )
     source = models.CharField(max_length=200, choices=SOURCE)
     recipient = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='notifications')
     send_methods = (
@@ -42,12 +45,8 @@ class Notification(models.Model):
         ordering = ("-timestamp",)
 
     def __str__(self):
-        logger.error(' is __str ')
         return f"{self.is_sent} {self.sent_time} {self.source} {self.recipient} {self.subject} {self.message} {self.timestamp} {self.send_method}"
 
-    def save(self):
-        logger.error(' is save ')
-        super().save()
 
 class TelegramUser(models.Model):
     chat_id = models.PositiveIntegerField(verbose_name='User ID', unique=True)

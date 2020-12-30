@@ -9,13 +9,18 @@ class ReviewImageInline(admin.TabularInline):
 
 
 class ReviewAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'text', 'product', 'created', 'updated', 'reply_to']
     fieldsets = [
-        (None,               {'fields': ['user','product', 'text', 'reply_to']}),
+        (None,               {'fields': ['user', 'product', 'text', 'reply_to']}),
     ]
     inlines = [ReviewImageInline]
     list_filter = ['created']
     search_fields = ['user', 'text', 'product']
 
 
+class ReviewImageAdmin(admin.ModelAdmin):
+    list_display = ['id', 'raw_photo', 'review', 'review_photo']
+
+
 admin.site.register(Review, ReviewAdmin)
-admin.site.register(ReviewImage)
+admin.site.register(ReviewImage, ReviewImageAdmin)

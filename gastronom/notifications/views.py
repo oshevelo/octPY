@@ -7,9 +7,12 @@ from rest_framework import generics
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
 
+from gastronom.settings import USE_QUEUE
 from notifications.models import Notification
 from notifications.serializers import NotificationSerializer, NotificationNestedSerializer
 from notifications.tasks import send_methods
+from notifications.permissions import ReadOnlyOrFull
+
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +24,7 @@ class NotificationListCreate(generics.ListCreateAPIView):
     queryset = Notification.objects.order_by('-timestamp')[:50]
     serializer_class = NotificationSerializer
     pagination_class = LimitOffsetPagination
+    permission_classes = [ReadOnlyOrFull]
 
 
 class NotificationsByRecipient(generics.ListCreateAPIView):
@@ -29,6 +33,7 @@ class NotificationsByRecipient(generics.ListCreateAPIView):
     """
     serializer_class = NotificationSerializer
     pagination_class = LimitOffsetPagination
+    permission_classes = [ReadOnlyOrFull]
 
     def get_queryset(self):
         obj = get_list_or_404(Notification, recipient=self.kwargs.get('recipient_id'))
@@ -41,6 +46,7 @@ class NotificationsByUserNested(generics.RetrieveUpdateDestroyAPIView):
     """
     serializer_class = NotificationNestedSerializer
     pagination_class = LimitOffsetPagination
+    permission_classes = [ReadOnlyOrFull]
 
     def get_object(self):
         return get_object_or_404(User, pk=self.kwargs.get('recipient_id'))
@@ -52,9 +58,10 @@ class NotificationsUnsent(generics.ListCreateAPIView):
     """
     serializer_class = NotificationSerializer
     pagination_class = LimitOffsetPagination
+    permission_classes = [ReadOnlyOrFull]
 
     def get_queryset(self):
-        lst = get_list_or_404(Notification, sent=False)
+        lst = get_list_or_404(Notification, is_sent=False)
         return lst
 
 
@@ -80,8 +87,11 @@ Notification.create_notifications('notifications', recipients=[user for user in 
     if send_method in send_methods:
         send_func = send_methods[send_method]
         for user in recipients:
-            n = Notification(source=source, recipient=user, subject=subject, message=message, send_method=send_method)
-            n.save()
-            send_func.delay(n.id)
+            notification = Notification(source=source, recipient=user, subject=subject, message=message, send_method=send_method)
+            notification.save()
+            if USE_QUEUE:
+                send_func.delay(notification.id)
+            else:
+                send_func(notification.id)
     else:
         logger.error('Invalid send method passed to the create_notifications')
