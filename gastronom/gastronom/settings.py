@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'cart',
     'tinymce',
     'info',
+    'order',
 ]
 
 # celery setting.

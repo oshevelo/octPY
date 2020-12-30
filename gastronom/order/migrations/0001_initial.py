@@ -10,8 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('user_profile', '0009_auto_20201204_1857'),
-        ('product', '0009_auto_20201125_1733'),
+        ('user_profile', '0009_auto_20201204_1857')
     ]
 
     operations = [
