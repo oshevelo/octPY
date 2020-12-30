@@ -76,7 +76,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.midd>>>>>>> mainleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -184,55 +184,49 @@ TOKEN = ''
 PROXY_URL = ''
 CHAT_ID = ''
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'console': {'format': '%(name)-12s %(levelname)-8s %(message)s'},
-        'file': {'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',}
-    },
-    'handlers': {
-        'console': {'level': 'INFO', 'class': 'logging.StreamHandler', 'formatter': 'console'},
-        'common-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/common.log'},
-        'notifications-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/notifications.log'},
-        # 'activities-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/activities.log'},
-        # 'analytics-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/analytics.log'},
-        'cart-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/cart.log'},
-        'catalog-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/catalog.log'},
-        'comments-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/comments.log'},
-        'discount-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/discount.log'},
-        # 'info-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/info.log'},
-        # 'loyalty-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/loyalty.log'},
-        # 'order-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/order.log'},
-        'payment-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/payment.log'},
-        'product-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/product.log'},
-        # 'shipment-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/shipment.log'},
-        'user_profile-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/user_profile.log'}
-    },
-    'loggers': {
-        'django': {'level': 'INFO', 'handlers': ['console', 'common-file']},
-        # 'activities': {'level': 'INFO', 'handlers': ['console', 'common-file', 'activities-file']},
-        # 'analytics': {'level': 'INFO', 'handlers': ['console', 'common-file', 'analytics-file']},
-        'cart': {'level': 'INFO', 'handlers': ['console', 'common-file', 'cart-file']},
-        'catalog': {'level': 'INFO', 'handlers': ['console', 'common-file', 'catalog-file']},
-        'comments': {'level': 'INFO', 'handlers': ['console', 'common-file', 'comments-file']},
-        'discount': {'level': 'INFO', 'handlers': ['console', 'common-file', 'discount-file']},
-        # 'info': {'level': 'INFO', 'handlers': ['console', 'common-file', 'info-file']},
-        # 'loyalty': {'level': 'INFO', 'handlers': ['console', 'common-file', 'loyalty-file']},
-        'notifications': {'level': 'INFO', 'handlers': ['console', 'common-file', 'notifications-file']},
-        # 'order': {'level': 'INFO', 'handlers': ['console', 'common-file', 'order-file']},
-        'payment': {'level': 'INFO', 'handlers': ['console', 'common-file', 'payment-file']},
-        'product': {'level': 'INFO', 'handlers': ['console', 'common-file', 'product-file']},
-        # 'shipment': {'level': 'INFO', 'handlers': ['console', 'common-file', 'shipment-file']},
-        'user_profile': {'level': 'INFO',<<<<<<< catalog6
-91
- 
-    'PAGE_SIZE': 50
-92
- 
-======= 'handlers': ['console', 'common-file', 'user_profile-file']},
-    }
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'formatters': {
+#         'console': {'format': '%(name)-12s %(levelname)-8s %(message)s'},
+#         'file': {'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',}
+#     },
+#     'handlers': {
+#         'console': {'level': 'INFO', 'class': 'logging.StreamHandler', 'formatter': 'console'},
+#         'common-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/common.log'},
+#         'notifications-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/notifications.log'},
+#         # 'activities-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/activities.log'},
+#         # 'analytics-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/analytics.log'},
+#         'cart-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/cart.log'},
+#         'catalog-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/catalog.log'},
+#         'comments-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/comments.log'},
+#         'discount-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/discount.log'},
+#         # 'info-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/info.log'},
+#         # 'loyalty-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/loyalty.log'},
+#         # 'order-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/order.log'},
+#         'payment-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/payment.log'},
+#         'product-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/product.log'},
+#         # 'shipment-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/shipment.log'},
+#         'user_profile-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/user_profile.log'}
+#     },
+#     'loggers': {
+#         'django': {'level': 'INFO', 'handlers': ['console', 'common-file']},
+#         # 'activities': {'level': 'INFO', 'handlers': ['console', 'common-file', 'activities-file']},
+#         # 'analytics': {'level': 'INFO', 'handlers': ['console', 'common-file', 'analytics-file']},
+#         'cart': {'level': 'INFO', 'handlers': ['console', 'common-file', 'cart-file']},
+#         'catalog': {'level': 'INFO', 'handlers': ['console', 'common-file', 'catalog-file']},
+#         'comments': {'level': 'INFO', 'handlers': ['console', 'common-file', 'comments-file']},
+#         'discount': {'level': 'INFO', 'handlers': ['console', 'common-file', 'discount-file']},
+#         # 'info': {'level': 'INFO', 'handlers': ['console', 'common-file', 'info-file']},
+#         # 'loyalty': {'level': 'INFO', 'handlers': ['console', 'common-file', 'loyalty-file']},
+#         'notifications': {'level': 'INFO', 'handlers': ['console', 'common-file', 'notifications-file']},
+#         # 'order': {'level': 'INFO', 'handlers': ['console', 'common-file', 'order-file']},
+#         'payment': {'level': 'INFO', 'handlers': ['console', 'common-file', 'payment-file']},
+#         'product': {'level': 'INFO', 'handlers': ['console', 'common-file', 'product-file']},
+#         # 'shipment': {'level': 'INFO', 'handlers': ['console', 'common-file', 'shipment-file']},
+#         'user_profile': {'level': 'INFO', 'PAGE_SIZE': 50, 'handlers': ['console', 'common-file', 'user_profile-file']},
+#     }
+# }
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
