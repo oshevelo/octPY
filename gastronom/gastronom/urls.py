@@ -30,6 +30,6 @@ urlpatterns = [
     path('comments/', include('comments.urls')),
     path('cart/', include('cart.urls')),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
-    path('login/', auth_views.LoginView.as_view(redirect_field_name='/catalog/catalog/'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(redirect_field_name='/catalog/catalog/'), name='logout'),
+    path('login/', auth_views.LoginView.as_view(), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
