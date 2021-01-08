@@ -9,7 +9,7 @@ class Cart(models.Model):
 
     def total_price(self):
         return sum([cartitem.product.price * cartitem.quantity for cartitem in self.cart_items.all()
-                    if cartitem.cart_item_status == 'Available'])
+                    if cartitem.cart_item_status is True])
     total_price = property(total_price)
 
     def __str__(self):
@@ -20,8 +20,12 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, verbose_name='Cart', related_name='cart_items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Product')
     quantity = models.PositiveIntegerField('Quantity', default=1)
-    unit_price = models.DecimalField('Price', max_digits=15, decimal_places=2)
+    # unit_price = models.DecimalField('Price', max_digits=15, decimal_places=2)
     creation_date = models.DateTimeField('Creation date', auto_now_add=True)
+
+    def unit_price(self):
+        return self.product.price
+    unit_price = property(unit_price)
 
     def amount_left(self):
         return self.product.amount_left
@@ -29,9 +33,7 @@ class CartItem(models.Model):
 
     def cart_item_status(self):
         if self.product.available is True and self.quantity <= self.product.amount_left:
-            return 'Available'
-        elif self.product.available is True and self.quantity > self.product.amount_left:
-            return 'An insufficient amount'
+            return True
         else:
-            return 'Not available'
+            return False
     cart_item_status = property(cart_item_status)
