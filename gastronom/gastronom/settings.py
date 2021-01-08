@@ -76,7 +76,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.midd>>>>>>> mainleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -224,13 +224,7 @@ LOGGING = {
         'payment': {'level': 'INFO', 'handlers': ['console', 'common-file', 'payment-file']},
         'product': {'level': 'INFO', 'handlers': ['console', 'common-file', 'product-file']},
         # 'shipment': {'level': 'INFO', 'handlers': ['console', 'common-file', 'shipment-file']},
-        'user_profile': {'level': 'INFO',<<<<<<< catalog6
-91
- 
-    'PAGE_SIZE': 50
-92
- 
-======= 'handlers': ['console', 'common-file', 'user_profile-file']},
+        'user_profile': {'level': 'INFO', 'handlers': ['console', 'common-file', 'user_profile-file']},
     }
 }
 

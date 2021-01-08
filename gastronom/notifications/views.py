@@ -1,8 +1,11 @@
 import logging
 
+# import django_filters
+import django_filters
 from django.shortcuts import get_list_or_404
 from django.contrib.auth.models import User
 
+from rest_framework import filters
 from rest_framework import generics
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
@@ -12,9 +15,32 @@ from notifications.models import Notification
 from notifications.serializers import NotificationSerializer, NotificationNestedSerializer
 from notifications.tasks import send_methods
 from notifications.permissions import ReadOnlyOrFull
+from notifications.filters import NotificationFilter
 
 
 logger = logging.getLogger(__name__)
+
+
+class NotificationAll(generics.ListCreateAPIView):
+    """
+    Outputs all notifications from db with available filtration. Path = 'notifications/'.
+    """
+    queryset = Notification.objects.all()
+    # field filter:
+
+    # filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    # filterset_fields = ['recipient', 'is_sent', 'send_method', 'message', 'source', 'subject']
+
+    # or search filter:
+
+    # filter_backends = [filters.SearchFilter]
+    # search_fields = ['send_method', 'message', 'source', 'subject']
+
+    filter_backends = [NotificationFilter]
+
+    serializer_class = NotificationSerializer
+    pagination_class = LimitOffsetPagination
+    permission_classes = [ReadOnlyOrFull]
 
 
 class NotificationListCreate(generics.ListCreateAPIView):
@@ -47,6 +73,7 @@ class NotificationsByUserNested(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = NotificationNestedSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = [ReadOnlyOrFull]
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
 
     def get_object(self):
         return get_object_or_404(User, pk=self.kwargs.get('recipient_id'))
@@ -59,6 +86,7 @@ class NotificationsUnsent(generics.ListCreateAPIView):
     serializer_class = NotificationSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = [ReadOnlyOrFull]
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
 
     def get_queryset(self):
         lst = get_list_or_404(Notification, is_sent=False)
