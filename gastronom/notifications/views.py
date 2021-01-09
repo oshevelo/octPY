@@ -65,7 +65,6 @@ class NotificationsByUserNested(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = NotificationNestedSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = [ReadOnlyOrFull]
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
 
     def get_object(self):
         return get_object_or_404(User, pk=self.kwargs.get('recipient_id'))
@@ -78,7 +77,6 @@ class NotificationsUnsent(generics.ListCreateAPIView):
     serializer_class = NotificationSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = [ReadOnlyOrFull]
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
 
     def get_queryset(self):
         lst = get_list_or_404(Notification, is_sent=False)
