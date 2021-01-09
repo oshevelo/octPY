@@ -15,7 +15,6 @@ from notifications.models import Notification
 from notifications.serializers import NotificationSerializer, NotificationNestedSerializer
 from notifications.tasks import send_methods
 from notifications.permissions import ReadOnlyOrFull
-from notifications.filters import NotificationFilter
 
 
 logger = logging.getLogger(__name__)
@@ -23,20 +22,13 @@ logger = logging.getLogger(__name__)
 
 class NotificationAll(generics.ListCreateAPIView):
     """
-    Outputs all notifications from db with available filtration. Path = 'notifications/'.
+    Outputs all notifications from db with available filtration. Path = 'notifications/all/'.
     """
     queryset = Notification.objects.all()
-    # field filter:
-
-    # filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    # filterset_fields = ['recipient', 'is_sent', 'send_method', 'message', 'source', 'subject']
-
-    # or search filter:
-
-    # filter_backends = [filters.SearchFilter]
-    # search_fields = ['send_method', 'message', 'source', 'subject']
-
-    filter_backends = [NotificationFilter]
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    ordering_fields = ['is_sent', 'timestamp']
+    filterset_fields = ['recipient', 'is_sent', 'send_method', 'message', 'source', 'subject']
+    search_fields = ['send_method', 'message', 'source', 'subject']
 
     serializer_class = NotificationSerializer
     pagination_class = LimitOffsetPagination
