@@ -2,8 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 
-from gastronom.settings import REVIEW_IMAGE_SIZE
+from gastronom.settings import REVIEW_IMAGE_SIZE, USE_QUEUE
 from product.models import Product
+from comments.tasks import resize
 
 from PIL import Image
 from io import BytesIO
@@ -39,25 +40,20 @@ class ReviewImage(models.Model):
         return f'Image for {self.review}'
 
     def save(self, **kwargs):
-
+        raw_photo_path = ReviewImage.raw_photo.path
+        
         self.review_photo.save(
-            **self.resize_img(REVIEW_IMAGE_SIZE)
+            **self.resize_img(REVIEW_IMAGE_SIZE, raw_photo_path)
         )
 
         super().save(**kwargs)
 
-    def resize_img(self, img_size):
-        img = Image.open(self.raw_photo)
-        img.thumbnail(img_size, Image.ANTIALIAS)
+    def resize_img(self, REVIEW_IMAGE_SIZE, raw_photo_path):
 
-        outputIO = BytesIO()
-        img.save(outputIO, format=img.format, quality=100)
-
-        return {
-            'name': '_thumb',
-            'content': ContentFile(outputIO.getvalue()),
-            'save': False,
-        }
+        if USE_QUEUE:
+            resize.delay(REVIEW_IMAGE_SIZE, raw_photo_path)
+        else:
+            resize(REVIEW_IMAGE_SIZE, raw_photo_path)
 
 
 class ReviewRating(models.Model):
