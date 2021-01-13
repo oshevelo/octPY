@@ -41,12 +41,12 @@ class ReviewImage(models.Model):
     def save(self, **kwargs):
 
         self.review_photo.save(
-            **self.resizeImg(REVIEW_IMAGE_SIZE)
+            **self.resize_img(REVIEW_IMAGE_SIZE)
         )
 
         super().save(**kwargs)
 
-    def resizeImg(self, img_size):
+    def resize_img(self, img_size):
         img = Image.open(self.raw_photo)
         img.thumbnail(img_size, Image.ANTIALIAS)
 
