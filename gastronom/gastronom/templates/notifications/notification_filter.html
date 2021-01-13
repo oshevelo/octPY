@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <form method="get">
+        {{ filter.form.as_p }}
+        <input type="submit" />
+    </form>
+    {% for obj in filter.qs %}
+        {{ obj.message }}, {{ obj.sent_time }}, {{ obj.is_sent}}<br />
+    {% endfor %}
+{% endblock %}

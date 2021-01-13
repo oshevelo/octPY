@@ -1,8 +1,11 @@
 import logging
 
+# import django_filters
+import django_filters
 from django.shortcuts import get_list_or_404
 from django.contrib.auth.models import User
 
+from rest_framework import filters
 from rest_framework import generics
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
@@ -15,6 +18,21 @@ from notifications.permissions import ReadOnlyOrFull
 
 
 logger = logging.getLogger(__name__)
+
+
+class NotificationAll(generics.ListCreateAPIView):
+    """
+    Outputs all notifications from db with available filtration. Path = 'notifications/all/'.
+    """
+    queryset = Notification.objects.all()
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    ordering_fields = ['is_sent', 'timestamp']
+    filterset_fields = ['recipient', 'is_sent', 'send_method', 'message', 'source', 'subject']
+    search_fields = ['send_method', 'message', 'source', 'subject']
+
+    serializer_class = NotificationSerializer
+    pagination_class = LimitOffsetPagination
+    permission_classes = [ReadOnlyOrFull]
 
 
 class NotificationListCreate(generics.ListCreateAPIView):
