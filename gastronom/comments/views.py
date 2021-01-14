@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 
-from rest_framework import generics
+from rest_framework import generics, filters
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .permissions import IsOwnerOrReadOnly
@@ -17,6 +17,8 @@ class ReviewListCreate(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Review.objects.filter(reply_to=None).order_by('-created')
     serializer_class = ReviewSerializer
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['created']
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
