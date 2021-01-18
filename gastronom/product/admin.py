@@ -2,19 +2,18 @@ from django.contrib import admin
 
 from .models import Product, ProductMedia, Characteristic
 
-class CharacteristicInline(admin.TabularInline):
+class CharacteristicInline(admin.StackedInline):
     model = Characteristic
     extra = 1
 
-class ProductMediaInline(admin.StackedInline):
+class ProductMediaInline(admin.TabularInline):
     model = ProductMedia
     extra = 1
     
     
 class ProductAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None,                  {'fields' : ['categories', 'name', 'sku', 'price', 'count', 'available']}),
-        ('Product information', {'fields' : ['descriptions', 'raiting']}),
+        (None,                  {'fields' : ['categories', 'name', 'sku', 'price', 'count', 'descriptions', 'raiting', 'available', ]}),
         ]
     
     inlines = [CharacteristicInline, ProductMediaInline]

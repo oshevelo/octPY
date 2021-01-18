@@ -15,7 +15,7 @@ class ProductMediaNestedSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ProductMedia
-        fields = ['id', 'medium_image']
+        fields = ['id', 'thumbnail_image', 'medium_image']
 
 
 class CharacteristicNestedSerializer(serializers.ModelSerializer):
@@ -26,13 +26,13 @@ class CharacteristicNestedSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    image = ProductMediaNestedSerializer(many=True, read_only=True)
+    mediafiles = ProductMediaNestedSerializer(many=True, read_only=True)
     characteristics = CharacteristicNestedSerializer(many=True, read_only=True)
     
     
     class Meta:
         model = Product
-        fields = ['id', 'name', 'image', 'sku', 'descriptions', 'categories', 'raiting', 'count', 'price', 'available', 'characteristics']
+        fields = ['id', 'name', 'categories', 'mediafiles', 'sku', 'descriptions', 'raiting', 'count', 'price', 'available', 'characteristics']
         
 
 class ProductMediaSerializer(serializers.ModelSerializer):
@@ -41,6 +41,12 @@ class ProductMediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductMedia
         fields = '__all__'
+
+
+    '''
+    TODO: 
+        add perform create to auto set product_id form URL
+    '''
         
 
 class CharacteristicSerializer(serializers.ModelSerializer):
@@ -49,3 +55,9 @@ class CharacteristicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Characteristic
         fields = ['id', 'characteristic', 'descriptions', 'product']
+
+    '''
+    TODO: 
+        add perform create to auto set product_id form URL
+    '''
+

@@ -18,13 +18,21 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from gastronom.settings import MEDIA_URL, MEDIA_ROOT
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 urlpatterns = [
     path('jet/', include('jet.urls', 'jet')),
     path('admin/', admin.site.urls),
     path('notifications/', include('notifications.urls')),
     path('user_profile/', include('user_profile.urls')),
     path('catalog/', include('catalog.urls')),
-    path('product/', include('product.urls')),
+    path('products/', include('product.urls')),
     path('comments/', include('comments.urls')),
     path('cart/', include('cart.urls')),
+    path('api-auth/', include('rest_framework.urls', 'rest_framework')),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
