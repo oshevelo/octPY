@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
+import drf_writable_nested
 
 from notifications.models import Notification
 
@@ -7,7 +8,7 @@ from notifications.models import Notification
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ['id', 'sent', 'source', 'recipient', 'message', 'timestamp', 'send_method']
+        fields = ['id', 'is_sent', 'sent_time', 'source', 'recipient', 'message', 'timestamp', 'send_method']
 
 
 class RecipientSerializer(serializers.ModelSerializer):
@@ -16,7 +17,7 @@ class RecipientSerializer(serializers.ModelSerializer):
         fields = ['id', 'username']
 
 
-class NotificationNestedSerializer(serializers.ModelSerializer):
+class NotificationNestedSerializer(drf_writable_nested.WritableNestedModelSerializer):
     notifications = NotificationSerializer(many=True)
 
     class Meta:

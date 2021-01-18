@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -38,9 +41,9 @@ INSTALLED_APPS = [
     'comments.apps.CommentsConfig',
     'notifications',
     'catalog',
-    #'super_inlines',
+    # 'super_inlines',
+    'django_celery_results',
     'product.apps.ProductConfig',
-    'cart',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -48,7 +51,26 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'discount',
+    'gastronom',
+    'cart',
+    'tinymce',
+    'info',
+    'order',
 ]
+
+# celery setting.
+CELERY_CACHE_BACKEND = 'default'
+CELERY_RESULT_BACKEND = 'django-db'
+USE_QUEUE = True
+
+
+# django setting.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    }
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -61,6 +83,17 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'gastronom.urls'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication'],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 50
+}
+
 
 TEMPLATES = [
     {
@@ -119,7 +152,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Kiev'
 
 USE_I18N = True
 
@@ -142,6 +175,7 @@ PRODUCT_IMAGE_SIZE = {
     'medium_large': (768, 768),
     'large': (1024, 1024)
 }
+REVIEW_IMAGE_SIZE = 300, 300  # for small image size in review
 
 # e-mail settings
 EMAIL_HOST = 'smtp.gmail.com'
@@ -159,45 +193,55 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'console': {
-            'format': '%(name)-12s %(levelname)-8s %(message)s'
-        },
-        'file': {
-            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-        }
+        'console': {'format': '%(name)-12s %(levelname)-8s %(message)s'},
+        'file': {'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',}
     },
     'handlers': {
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'console'
-        },
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'formatter': 'file',
-            'filename': 'gastronom/debug.log',
-        }
+        'console': {'level': 'INFO', 'class': 'logging.StreamHandler', 'formatter': 'console'},
+        'common-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/common.log'},
+        'notifications-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/notifications.log'},
+        # 'activities-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/activities.log'},
+        # 'analytics-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/analytics.log'},
+        'cart-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/cart.log'},
+        'catalog-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/catalog.log'},
+        'comments-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/comments.log'},
+        'discount-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/discount.log'},
+        # 'info-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/info.log'},
+        # 'loyalty-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/loyalty.log'},
+        # 'order-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/order.log'},
+        'payment-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/payment.log'},
+        'product-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/product.log'},
+        # 'shipment-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/shipment.log'},
+        'user_profile-file': {'level': 'INFO', 'class': 'logging.FileHandler', 'formatter': 'file', 'filename': 'logs/user_profile.log'}
     },
     'loggers': {
-        'django': {
-            'level': 'INFO',
-            'handlers': ['console', 'file']
-        }
+        'django': {'level': 'INFO', 'handlers': ['console', 'common-file']},
+        # 'activities': {'level': 'INFO', 'handlers': ['console', 'common-file', 'activities-file']},
+        # 'analytics': {'level': 'INFO', 'handlers': ['console', 'common-file', 'analytics-file']},
+        'cart': {'level': 'INFO', 'handlers': ['console', 'common-file', 'cart-file']},
+        'catalog': {'level': 'INFO', 'handlers': ['console', 'common-file', 'catalog-file']},
+        'comments': {'level': 'INFO', 'handlers': ['console', 'common-file', 'comments-file']},
+        'discount': {'level': 'INFO', 'handlers': ['console', 'common-file', 'discount-file']},
+        # 'info': {'level': 'INFO', 'handlers': ['console', 'common-file', 'info-file']},
+        # 'loyalty': {'level': 'INFO', 'handlers': ['console', 'common-file', 'loyalty-file']},
+        'notifications': {'level': 'INFO', 'handlers': ['console', 'common-file', 'notifications-file']},
+        # 'order': {'level': 'INFO', 'handlers': ['console', 'common-file', 'order-file']},
+        'payment': {'level': 'INFO', 'handlers': ['console', 'common-file', 'payment-file']},
+        'product': {'level': 'INFO', 'handlers': ['console', 'common-file', 'product-file']},
+        # 'shipment': {'level': 'INFO', 'handlers': ['console', 'common-file', 'shipment-file']},
+        'user_profile': {'level': 'INFO', 'handlers': ['console', 'common-file', 'user_profile-file']},
     }
 }
 
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication'],
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 50
-}
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+sentry_sdk.init(
+    dsn="https://f623636078ed4cc7add578bbb3462672@o490907.ingest.sentry.io/5555592",
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=1.0,
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
 
 from .local_settings import *
-
-REVIEW_IMAGE_SIZE = 300, 300  # for small image size in review

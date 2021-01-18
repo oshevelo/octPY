@@ -17,6 +17,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from gastronom.settings import MEDIA_URL, MEDIA_ROOT
+#from django.contrib.auth import views as auth_views
+from django.views.generic.base import TemplateView
+
+
+# def trigger_error(request):
+#     division_by_zero = 1 / 0
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -35,4 +41,9 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', 'rest_framework')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('', TemplateView.as_view(template_name='home.html'), name='home'),
+    #path('login/', auth_views.LoginView.as_view(redirect_field_name='/catalog/catalog/'), name='login'),
+    #path('logout/', auth_views.LogoutView.as_view(redirect_field_name='/catalog/catalog/'), name='logout'),
+    path('info/', include('info.urls')),
+    path('tinymce/', include('tinymce.urls')),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)

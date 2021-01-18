@@ -1,44 +1,44 @@
 import logging
 
 from django.core.mail import send_mail
-from django.conf import settings
-
-from telegram import Bot
-from telegram.utils.request import Request
+from django.contrib.auth.models import User
 
 from gastronom.settings import EMAIL_HOST_USER
 from user_profile.models import UserProfile
+from notifications.models import TelegramIncomeMessage
+from notifications.bot import bot
 
 
 logger = logging.getLogger(__name__)
 
 
-def send_email(recipient, message, subject):
-    try:
-        recipient = [recipient.email]
-        send_mail(subject=subject, message=message, from_email=EMAIL_HOST_USER, recipient_list=recipient)
-    except Exception as e:
-        logger.error(f'E-mail message to {recipient} has not been sent')
+def send_email(notification_obj):
+    """
+    Takes Notification object and sends it by its email.
+    :param notification_obj: class Notification object
+    """
+    send_mail(subject=notification_obj.subject, message=notification_obj.message, from_email=EMAIL_HOST_USER,
+              recipient_list=[User.objects.get(id=notification_obj.recipient_id).email])
 
 
-def send_telegram(recipient, message, subject):
-    telegram_id = int
-    try:
-        recipient = UserProfile.objects.get(user=recipient)
-        telegram_id = recipient.telegram_id
-        request = Request(connect_timeout=0.5, read_timeout=1.0, con_pool_size=8)
-        bot = Bot(request=request, token=settings.TOKEN, base_url=settings.PROXY_URL)
-        bot.send_message(telegram_id, message)
-        return True
-    except Exception as e:
-        logger.error(f"Message to {recipient} with telegram id {telegram_id} has not been sent")
-        return False
+def send_telegram(notification_obj):
+    """
+    Takes Notification object, calls UserProfile object by Notification object`s recipient id, takes telegram_id attribute from UserProfile object,
+    and sends notification text to available telegram id.
+    :param notification_obj: class Notification object
+    """
+    telegram_id = (UserProfile.objects.get(user=notification_obj.recipient)).telegram_id
+    bot.send_message(telegram_id, notification_obj.message)
 
 
-send_methods = {
-    'email': send_email,
-    'telegram': send_telegram,
-    # 'viber': send_viber,
-    # 'sms': send_sms,
-    # 'site': send_site
-}
+def send_telegram_reply(telegram_reply_message_obj):
+    """
+    Takes TelegramReplyMessage object, calls TelegramIncomeMessage object (reply to which), takes TelegramIncomeMessage id and sender chat_id,
+    and sends available TelegramReplyMessage text to available chat_id with indicated income message id in response to which this reply is.
+    :param telegram_reply_message_obj: class TelegramReplyMessage object
+    """
+    income_message = TelegramIncomeMessage.objects.get(id=telegram_reply_message_obj.reply_to_message.id)
+    income_message_id = income_message.message_id
+    chat_id = income_message.chat_id
+    text = telegram_reply_message_obj.reply_message
+    bot.send_message(reply_to_message_id=income_message_id, chat_id=chat_id, text=text)
