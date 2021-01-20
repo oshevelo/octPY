@@ -24,19 +24,26 @@ from django.views.generic.base import TemplateView
 # def trigger_error(request):
 #     division_by_zero = 1 / 0
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 urlpatterns = [
     path('jet/', include('jet.urls', 'jet')),
     path('admin/', admin.site.urls),
     path('notifications/', include('notifications.urls')),
     path('user_profile/', include('user_profile.urls')),
     path('catalog/', include('catalog.urls')),
-    path('product/', include('product.urls')),
+    path('products/', include('product.urls')),
     path('comments/', include('comments.urls')),
     path('cart/', include('cart.urls')),
+    path('api-auth/', include('rest_framework.urls', 'rest_framework')),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
     #path('login/', auth_views.LoginView.as_view(redirect_field_name='/catalog/catalog/'), name='login'),
     #path('logout/', auth_views.LogoutView.as_view(redirect_field_name='/catalog/catalog/'), name='logout'),
     path('info/', include('info.urls')),
     path('tinymce/', include('tinymce.urls')),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
-

@@ -39,7 +39,7 @@ class ProductMedia(models.Model):
     large_image = models.ImageField(upload_to='products/%Y/%m/%d/large/', null=True, editable=False)
 
 
-    def save(self):
+    def save(self, *args, **kwargs):
         image_sizes=PRODUCT_IMAGE_SIZE
 
         self.make_thumbnail(sizes=image_sizes['thumbnail'], dest_field=self.thumbnail_image)
@@ -48,7 +48,7 @@ class ProductMedia(models.Model):
         self.make_thumbnail(sizes=image_sizes['large'], dest_field=self.large_image)
 
         
-        super(ProductMedia, self).save()
+        super(ProductMedia, self).save(*args, **kwargs)
 
     def make_thumbnail(self, sizes, dest_field):
         image = Image.open(self.original_image)
@@ -86,11 +86,11 @@ class ProductMedia(models.Model):
 
 class Characteristic(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='characteristics')
-    characteristic = models.CharField(max_length=20)
+    characteristic = models.CharField(max_length=20, blank=True)
     descriptions = models.TextField(max_length=500)
     
     def __str__(self):
-        return f"{self.pk}, {self.product}, {self.characteristic}"
+        return f"{self.pk}, {self.characteristic}, {self.product}"
 
     class Meta:
         ordering = ['product_id']
