@@ -23,12 +23,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '0)6wj6q-(r@5$t7g=3%dtc4mpl$x&x$(1h#d&qc5m&3h8c^z^*'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [*]
 
 
 # Application definition
@@ -110,7 +110,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'gastronom.wsgi.application'
 
 
-# Database
+# Database)6wj6q-(r@5$t7g=3%dtc4mpl$x&x$(1h#d&qc50m&3h8c^z^*'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
