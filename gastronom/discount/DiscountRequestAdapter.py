@@ -1,4 +1,4 @@
-from discount_cart.serializers import DiscountPostSerializer
+from discount.serializers import DiscountPostSerializer
 
 
 class DiscountRequestAdapter:
