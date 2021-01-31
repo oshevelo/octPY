@@ -3,11 +3,9 @@ from django.contrib.auth.models import User
 
 from rest_framework.test import APIClient
 
-from product.models import Product, Characteristic
+from product.models import Product, ProductMedia, Characteristic
 from catalog.models import Catalog
 
-from PIL import Image
-import tempfile
 
 class ProductTestAPI(TestCase):
 
@@ -26,6 +24,10 @@ class ProductTestAPI(TestCase):
             sku="S0me124",
             available=True)
 
+        self.characteristics = Characteristic.objects.create(
+            product=self.product,
+            characteristic='Test characteristic',
+            descriptions='Test description characteristic')
         
         self.superclient = APIClient(username="super")
         self.superclient.login(username="super", password="super123")
@@ -35,14 +37,6 @@ class ProductTestAPI(TestCase):
 
         self.otherclient = Client()
         self.otherclient.login()
-
-    def generate_image(self):
-        image = Image.new('RGB', (100, 100))
-
-        tmp_file = tempfile.NamedTemporaryFile(suffix='.png')
-        image.save(tmp_file)
-        tmp_file.seek(0)
-        return tmp_file
 
         
     def test_get_product_list_superuser(self):
@@ -64,7 +58,11 @@ class ProductTestAPI(TestCase):
                 'productcount' : self.product.productcount,
                 'price' : self.product.price,
                 'available' : self.product.available,
-                'characteristics' : []
+                'characteristics' : [{
+                    'id' : self.characteristics.id,
+                    'characteristic' : self.characteristics.characteristic,
+                    'descriptions' : self.characteristics.descriptions
+                }]
             }]
         })
 
@@ -87,7 +85,11 @@ class ProductTestAPI(TestCase):
                 'productcount' : self.product.productcount,
                 'price' : self.product.price,
                 'available' : self.product.available,
-                'characteristics' : []
+                'characteristics' : [{
+                    'id' : self.characteristics.id,
+                    'characteristic' : self.characteristics.characteristic,
+                    'descriptions' : self.characteristics.descriptions
+                }]
             }]
         })
 
@@ -111,7 +113,11 @@ class ProductTestAPI(TestCase):
                 'productcount' : self.product.productcount,
                 'price' : self.product.price,
                 'available' : self.product.available,
-                'characteristics' : []
+                'characteristics' : [{
+                    'id' : self.characteristics.id,
+                    'characteristic' : self.characteristics.characteristic,
+                    'descriptions' : self.characteristics.descriptions
+                }]
             }]
         })
 
@@ -162,4 +168,32 @@ class ProductTestAPI(TestCase):
             })
         self.assertEqual(response.status_code, 401)
 
+    
+    def test_post_characteristic_superuser(self):
+        response = self.superclient.post(f'/products/{self.product.id}/characteristics/',
+            {
+                'characteristic' : 'New characteristic',
+                'descriptions' : 'New descriptions'
 
+            })
+        self.assertEqual(response.status_code, 201)
+
+    
+    def test_post_characteristic_simpleuser(self):
+        response = self.simpleclient.post(f'/products/{self.product.id}/characteristics/',
+            {
+                'characteristic' : 'New characteristic',
+                'descriptions' : 'New descriptions'
+
+            })
+        self.assertEqual(response.status_code, 403)
+
+    
+    def test_post_characteristic_otheruser(self):
+        response = self.otherclient.post(f'/products/{self.product.id}/characteristics/',
+            {
+                'characteristic' : 'New characteristic',
+                'descriptions' : 'New descriptions'
+
+            })
+        self.assertEqual(response.status_code, 401)
