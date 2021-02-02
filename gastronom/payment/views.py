@@ -1,5 +1,3 @@
-from django.shortcuts import render, redirect
-from .models import Payment
+from django.shortcuts import render
 
-def about(request):
-    return render(request, 'gastronom/payment.html')
+# Create your views here.
