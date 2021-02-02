@@ -1,6 +1,6 @@
 from django.db import models
 from datetime import *
-
+import django_filters
 
 
 def compute_default_to():
@@ -19,5 +19,7 @@ class DiscountCart(models.Model):
     class Meta:
         verbose_name_plural = 'discounts'
         verbose_name = 'discount'
+  
+
 
 

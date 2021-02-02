@@ -3,19 +3,25 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.pagination import LimitOffsetPagination
+from django_filters.rest_framework import DjangoFilterBackend
+import django_filters
 
 from .DiscountRequestAdapter import *
 from .application.DiscountService import DiscountService
 from .serializers import DiscountPostSerializer
 
 
-class Discounts(APIView):
+class Discounts(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     authentication_classes = (TokenAuthentication, BasicAuthentication)
     pagination_class = LimitOffsetPagination
-
+    queryset = Discount.objects.all()
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    ordering_fields = ['valid_date_start', 'valid_date_end']
+    filterset_fields = ['code', 'valid_date_start', 'valid_date_end', 'status']
+    search_fields = ['code', 'valid_date_start', 'valid_date_end', 'status']
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -35,3 +41,4 @@ class Discounts(APIView):
             cart_number,
             cart_amount
         )
+         
