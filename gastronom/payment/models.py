@@ -20,3 +20,7 @@ def __str__(self):
 class Meta:
     verbose_name = 'Specific task'
     verbose_name_plural = 'All tasks'
+
+
+def Payments():
+    return None
