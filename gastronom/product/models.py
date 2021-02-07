@@ -17,7 +17,7 @@ class Product(models.Model):
     name = models.CharField(max_length=50, blank=False)
     descriptions = models.TextField(max_length=1000)
     raiting = models.FloatField(default=0.0)
-    count = models.PositiveSmallIntegerField(blank=False)
+    productcount = models.PositiveSmallIntegerField(blank=False)
     price = models.DecimalField(max_digits=7, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))], blank=False)
     sku = models.CharField(max_length=10, blank=False, unique=True)
     categories = models.ManyToManyField(Catalog, verbose_name="Category")

@@ -10,7 +10,7 @@ from product.models import Product, ProductMedia, Characteristic
 from product.serializers import ProductSerializer, ProductMediaSerializer, CharacteristicSerializer
 from product.permissions import IsAdminOrReadOnly
 
-class ProductMixin(mixins.CreateModelMixin):
+class ProductMixin():
     
     def perform_create(self, serializer):
         product = get_object_or_404(Product, pk=self.kwargs.get('product_id'))
