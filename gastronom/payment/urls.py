@@ -2,6 +2,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.index, name='payment-page')
+    path('', views.PaymentsList.as_view(), name = 'payments_list'),
+    path('<int:payment_id>/',
+        views.PaymentsDetail.as_view(), name = 'payments_detail'
+    ),
 
 ]
